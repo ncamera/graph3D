@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 var Axes = {};
 
 var AXE_LABEL_PADDING = 0.5;
