@@ -4,7 +4,7 @@ import { CubeFigure, CylinderFigure, TorusFigure, SphereFigure, RectangleFigure,
 import { MemoryCache } from './memory_cache';
 import * as THREE from 'three';
 console.log("THREE", THREE)
-import 'three/examples/js/controls/OrbitControls';
+import 'three-orbitcontrols';
 
 
 const WIDTH = 700;

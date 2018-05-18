@@ -13,7 +13,8 @@
     "babel-preset-es2015": "^6.24.1"
   },
   "dependencies": {
+    "three": "^0.90.0",
     "three-orbit-controls": "^82.1.0",
-    "three": "^0.90.0"
+    "three-orbitcontrols": "^2.1.2"
   }
 }
