@@ -2,8 +2,10 @@ import { Scene, PerspectiveCamera, WebGLRenderer, MeshBasicMaterial, Mesh, GridH
 import { Axes} from './axes';
 import { CubeFigure, CylinderFigure, TorusFigure, SphereFigure, RectangleFigure, CircleFigure, PolygonFigure, MathFunctionFigure, MathParametricFigure } from './figures'
 import { MemoryCache } from './memory_cache';
-import 'three/examples/js/controls/OrbitControls';
 import * as THREE from 'three';
+console.log("THREE", THREE)
+import 'three/examples/js/controls/OrbitControls';
+
 
 const WIDTH = 700;
 const HEIGHT = 500;
