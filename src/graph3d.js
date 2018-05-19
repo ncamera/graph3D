@@ -82,7 +82,7 @@ export function initialize(domElem) {
 
 	_scene.add(_group);
 
-	document.getElementById(domElem).appendChild(_renderer.domElement);
+	domElem.appendChild(_renderer.domElement);
 	
 	_renderer.render(_scene, _camera);	
 
