@@ -6,9 +6,6 @@ import * as THREE from 'three';
 console.log("THREE", THREE)
 import 'three-orbitcontrols';
 
-
-const WIDTH = 700;
-const HEIGHT = 500;
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 const DEFAULT_ZOOM = { x:1, y:1, z:1 };
 
@@ -24,7 +21,7 @@ var _animation = {
 	id: null,
 	frames: [],
 	key: 0,
-	delay: 50,
+	delay: 1000,
 	running: false,
 	timeoutRef: null,
 	callbackProgress: 0
@@ -43,13 +40,16 @@ var _initialized = false;
  * @param  {string} domElem dom node name, where canvas will put it
  */
 export function initialize(domElem) {
+	var width = domElem.getBoundingClientRect().width;
+	var height = domElem.getBoundingClientRect().height;
+
 	_scene = new Scene();
 
-	_camera = new PerspectiveCamera(50, WIDTH/HEIGHT,0.1, 1000);
+	_camera = new PerspectiveCamera(50, width/height,0.1, 1000);
 	//_camera = new THREE.OrthographicCamera(WIDTH/-25, WIDTH/25, HEIGHT/25, HEIGHT/-25, -100, 1000);
 
 	_renderer = new WebGLRenderer({ antialias: true });
-	_renderer.setSize(WIDTH, HEIGHT);
+	_renderer.setSize(width, height);
 	_renderer.setClearColor(0xffffff, 1);
 	_renderer.sortObjects = false;
 	
@@ -64,7 +64,7 @@ export function initialize(domElem) {
 	
 	_controls.addEventListener('change', () => { 
 		_light.position.copy(_camera.getWorldPosition() );
-		_renderer.render(_scene, _camera);
+		_renderer.render(_scene, _camera)
 	});
 
 	_axes = new Axes();
@@ -94,12 +94,14 @@ export function initialize(domElem) {
  */
 export function drawFigures(figures) {
 	var figureMesh;
+	
+	clear(true);
 
 	figures.forEach((figure) => {
 		figureMesh = drawFigure(figure);
-		figureMesh.rotation.set(Math.radians(figure.rotacion.x), Math.radians(figure.rotacion.y), Math.radians(figure.rotacion.z))
+		figureMesh.rotation.set(Math.radians(figure.rot.x), Math.radians(figure.rot.y), Math.radians(figure.rot.z))
 	
-		if (figure.tipo != 'polygon') {
+		if (figure.kind != 'polygon') {
 			figureMesh.position.set(figure.x, figure.y, figure.z);
 		}
 
@@ -199,6 +201,16 @@ export function setAxesVisibility(visible) {
 	}
 }
 
+export function changeSize(size) {
+
+	_camera.aspect = size.width / size.height;
+  _camera.updateProjectionMatrix();
+
+	_renderer.setSize( size.width, size.height );
+	
+	_renderer.render(_scene, _camera);	
+}
+
 var animate = function() {
 	// clean used cached figures
 	cachedUsed = {};
@@ -229,9 +241,9 @@ var animate = function() {
 
 		cachedUsed[figureKey] = true;
 		
-		figureMesh.rotation.set(Math.radians(figure.rotacion.x), Math.radians(figure.rotacion.y), Math.radians(figure.rotacion.z))
+		figureMesh.rotation.set(Math.radians(figure.rot.x), Math.radians(figure.rot.y), Math.radians(figure.rot.z))
 		
-		if (figure.tipo != 'polygon') {
+		if (figure.kind != 'polygon') {
 			figureMesh.position.set(figure.x, figure.y, figure.z);
 		}
 
@@ -243,14 +255,14 @@ var animate = function() {
 	if (_animation.key >= _props.data.length)
 		_animation.key = 0;
 
-	_animation.callbackProgress && _animation.callbackProgress(_animation.key / (_props.data.length-1));
+	_animation.callbackProgress && _animation.callbackProgress(_animation.key / (_props.data.length-1)*100);
 
 	_renderer.render(_scene, _camera);
 }
 
 // Figures
 var drawFigure = function(figure) {
-	switch (figure.tipo) {
+	switch (figure.kind) {
 		case 'sphere':
 			return SphereFigure(figure);
 		
@@ -276,9 +288,9 @@ var drawFigure = function(figure) {
 
 // Helpers
 function getFigureKey(figure) {
-	let key = figure.tipo.substr(0,2);
+	let key = figure.kind.substr(0,2);
 
-	switch (figure.tipo) {
+	switch (figure.kind) {
 		case 'sphere':
 			key = `sp-${figure.r}-${figure.color}`
 			break;

@@ -15,5 +15,6 @@ export {
 	// layout
 	setScale,
 	setZoom,
-	setAxesVisibility
+	setAxesVisibility,
+	changeSize
 } from './src/graph3d';
