@@ -49,9 +49,14 @@ function CylinderFigure(figure) {
 	)
 }
 
+// https://threejs.org/docs/#api/geometries/TorusGeometry
 function TorusFigure(figure) {
+	// r = radius
+	// w = figure.w,
+	// h = radialsegments
+	console.log(figure)
 	return new THREE.Mesh(
-		new THREE.TorusGeometry(figure.r, figure.w, figure.h, 30),
+		new THREE.TorusGeometry(figure.r, figure.w, figure.h, 30,  6.3),
 		new THREE.MeshLambertMaterial( { color: new THREE.Color(figure.color) } )
 	)
 }
