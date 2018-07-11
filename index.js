@@ -13,8 +13,8 @@ export {
 	pauseAnimation,
 
 	// layout
-	setScale,
-	setZoom,
-	setAxesVisibility,
-	changeSize
+	changeZoomType,
+	changeZoom,
+	changeSize,
+	setAxesVisibility
 } from './src/graph3d';

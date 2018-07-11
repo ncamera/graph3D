@@ -19,12 +19,6 @@ function setScale(axes, zoom) {
 	var xPoints = linspace(axes.x.min, axes.x.max, axes.x.max - axes.x.min + 1);
 	var yPoints = linspace(axes.y.min, axes.y.max, axes.y.max - axes.y.min + 1);
 	var zPoints = linspace(axes.z.min, axes.z.max, axes.z.max - axes.z.min + 1);
-
-	var zoomDif = {
-		x: zoom.x - 1,
-		y: zoom.y - 1,
-		z: zoom.z - 1,
-	} 
 	
 	while(this.group.children.length > 0){ 
 		child = this.group.children[0];

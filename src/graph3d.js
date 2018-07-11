@@ -3,18 +3,24 @@ import { Axes} from './axes';
 import { CubeFigure, CylinderFigure, TorusFigure, SphereFigure, RectangleFigure, CircleFigure, PolygonFigure, MathFunctionFigure, MathParametricFigure } from './figures'
 import { MemoryCache } from './memory_cache';
 import * as THREE from 'three';
-console.log("THREE", THREE)
-import 'three-orbitcontrols';
+import './orbit_controls';
 
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 const DEFAULT_ZOOM = { x:1, y:1, z:1 };
+const ZOOM_TYPE = { ALL:1, X: 2, Y: 3, Z: 4 };
 
 var figureKey, figureMesh, cachedUsed, _group;
 
 var _props = {
 	requireUpdate: false,
 	data: [],
-	updateCallback: null
+	updateCallback: null,
+	zoom: {
+		type: ZOOM_TYPE.ALL,
+		x: 1,
+		y: 1,
+		z: 1
+	}
 }
 
 var _animation = {
@@ -46,7 +52,7 @@ export function initialize(domElem) {
 	_scene = new Scene();
 
 	_camera = new PerspectiveCamera(50, width/height,0.1, 1000);
-	//_camera = new THREE.OrthographicCamera(WIDTH/-25, WIDTH/25, HEIGHT/25, HEIGHT/-25, -100, 1000);
+//	_camera = new THREE.OrthographicCamera(width/-25, width/25, height/25, height/-25, -100, 1000);
 
 	_renderer = new WebGLRenderer({ antialias: true });
 	_renderer.setSize(width, height);
@@ -60,12 +66,14 @@ export function initialize(domElem) {
 	_camera.add(_light);
 	_camera.position.set(5,5,8)
 
-	_controls = new THREE.OrbitControls(_camera, _renderer.domElement);
+	_controls = new THREE.OrbitControls(_camera, {}, _renderer.domElement);
 	
 	_controls.addEventListener('change', () => { 
 		_light.position.copy(_camera.getWorldPosition() );
 		_renderer.render(_scene, _camera)
 	});
+
+	_renderer.domElement.addEventListener('wheel', onMouseWheel, false);
 
 	_axes = new Axes();
 	_axes.setScale({
@@ -186,11 +194,19 @@ export function setScale(props) {
 	}
 }
 
-export function setZoom(props) {
+export function changeZoom(increase = true) {
 	if (_initialized) {
-		_group.scale.set(props.x,props.y,props.z);
-		_axes.group.scale.set(props.x,props.y,props.z);
-		_renderer.render(_scene, _camera);
+
+		let zoomEvent = new Event('wheel');
+
+		if (increase) {
+			zoomEvent.deltaY = 100;
+		}
+		else {
+			zoomEvent.deltaY = -100;
+		}
+		
+		_renderer.domElement.dispatchEvent(zoomEvent);
 	}
 }
 
@@ -209,6 +225,17 @@ export function changeSize(size) {
 	_renderer.setSize( size.width, size.height );
 	
 	_renderer.render(_scene, _camera);	
+}
+
+export function changeZoomType(type) {
+	_props.zoom.type = type;
+
+	if (_props.zoom.type == ZOOM_TYPE.ALL) {
+		_controls.enableZoom = true;
+	}
+	else {
+		_controls.enableZoom = false;
+	}
 }
 
 var animate = function() {
@@ -322,6 +349,40 @@ function getFigureKey(figure) {
 Math.radians = function(degrees) {
   return degrees * Math.PI / 180;
 }
+
+//Events
+function onMouseWheel(event) {
+
+
+	if (!_initialized) return;
+
+	if (_props.zoom.type == ZOOM_TYPE.ALL) {
+
+	}
+	else {
+		const delta = Math.sign(event.deltaY)*0.025;
+	
+		switch (_props.zoom.type) {
+			case ZOOM_TYPE.X:
+				_props.zoom.x += delta;
+				break;
+
+			case ZOOM_TYPE.Y:
+				_props.zoom.y += delta;
+				break;
+
+			case ZOOM_TYPE.Z:
+				_props.zoom.z += delta;
+				break;
+		}
+		const {x,y,z} = _props.zoom;
+
+		_group.scale.set(x,y,z);
+		_axes.group.scale.set(x,y,z);
+		_renderer.render(_scene, _camera);
+	}
+}
+
 
 // THREE extensions
 THREE.Mesh.prototype.dispose = function() { 
