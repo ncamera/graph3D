@@ -1,7 +1,8 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, MeshBasicMaterial, Mesh, GridHelper, CubeGeometry, SphereGeometry} from 'three'
-import { Axes} from './axes';
-import { CubeFigure, CylinderFigure, TorusFigure, SphereFigure, RectangleFigure, CircleFigure, PolygonFigure, MathFunctionFigure, MathParametricFigure } from './figures'
-import { MemoryCache } from './memory_cache';
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, PointLight, MeshBasicMaterial, GridHelper, CubeGeometry, SphereGeometry} from 'three'
+
+import * as Figures from './figures'
+import Axes from './axes';
+import MemoryCache from './memory_cache';
 import * as THREE from 'three';
 import './orbit_controls';
 
@@ -59,14 +60,14 @@ export function initialize(domElem) {
 	_renderer.setClearColor(0xffffff, 1);
 	_renderer.sortObjects = false;
 	
-	_light = new THREE.PointLight(0xffffff);
+	_light = new PointLight(0xffffff);
 	_light.position.set(0,0,0);
 
 	_scene.add(_camera);
 	_camera.add(_light);
 	_camera.position.set(5,5,8)
 
-	_controls = new THREE.OrbitControls(_camera, {}, _renderer.domElement);
+	_controls = new THREE.OrbitControls(_camera, _renderer.domElement);
 	
 	_controls.addEventListener('change', () => { 
 		_light.position.copy(_camera.getWorldPosition() );
@@ -194,23 +195,7 @@ export function setScale(props) {
 	}
 }
 
-export function changeZoom(increase = true) {
-	if (_initialized) {
-
-		let zoomEvent = new Event('wheel');
-
-		if (increase) {
-			zoomEvent.deltaY = 100;
-		}
-		else {
-			zoomEvent.deltaY = -100;
-		}
-		
-		_renderer.domElement.dispatchEvent(zoomEvent);
-	}
-}
-
-export function setAxesVisibility(visible) {
+export function showAxes(visible) {
 	if (_initialized) {
 		_axes.group.visible = visible;
 		_renderer.render(_scene, _camera);
@@ -236,6 +221,35 @@ export function changeZoomType(type) {
 	else {
 		_controls.enableZoom = false;
 	}
+}
+
+export function changeZoom(increase = true) {
+	if (_initialized) {
+
+		let zoomEvent = new Event('wheel');
+
+		if (increase) {
+			zoomEvent.deltaY = -100;
+		}
+		else {
+			zoomEvent.deltaY = 100;
+		}
+		
+		_renderer.domElement.dispatchEvent(zoomEvent);
+	}
+}
+
+export function reset() {
+	_props.zoom.x = 1;
+	_props.zoom.y = 1;
+	_props.zoom.z = 1;
+
+	const {x,y,z} = _props.zoom;
+
+	_group.scale.set(x,y,z);
+	_axes.group.scale.set(x,y,z);
+
+	_controls.reset();
 }
 
 var animate = function() {
@@ -291,25 +305,25 @@ var animate = function() {
 var drawFigure = function(figure) {
 	switch (figure.kind) {
 		case 'sphere':
-			return SphereFigure(figure);
+			return Figures.SphereFigure(figure);
 		
 		case 'cube':
-			return CubeFigure(figure);
+			return Figures.CubeFigure(figure);
 
 		case 'cylinder':
-			return CylinderFigure(figure);
+			return Figures.CylinderFigure(figure);
 		
 		case 'ring':
-			return TorusFigure(figure);
+			return Figures.TorusFigure(figure);
 
 		case 'circle':
-			return CircleFigure(figure);
+			return Figures.CircleFigure(figure);
 
 		case 'rectangle':
-			return RectangleFigure(figure);
+			return Figures.RectangleFigure(figure);
 
 		case 'polygon':
-			return PolygonFigure(figure);
+			return Figures.PolygonFigure(figure);
 	} 
 }
 
@@ -337,10 +351,9 @@ function getFigureKey(figure) {
 			key = `ci-${figure.r}-${figure.color}`
 			break;
 		case 'polygon':
-			let pointsAsText = figure.puntos.map(p => `${p[0]}-${p[1]}`).join('-')
+			const pointsAsText = figure.puntos.map(p => `${p[0]}-${p[1]}`).join('-')
 			key = `po${pointsAsText}-${figure.color}`
 			break;
-
 	}
 
 	return key;
@@ -352,15 +365,13 @@ Math.radians = function(degrees) {
 
 //Events
 function onMouseWheel(event) {
-
-
 	if (!_initialized) return;
 
 	if (_props.zoom.type == ZOOM_TYPE.ALL) {
 
 	}
 	else {
-		const delta = Math.sign(event.deltaY)*0.025;
+		const delta = Math.sign(event.deltaY)*-0.025;
 	
 		switch (_props.zoom.type) {
 			case ZOOM_TYPE.X:
@@ -383,20 +394,19 @@ function onMouseWheel(event) {
 	}
 }
 
-
 // THREE extensions
-THREE.Mesh.prototype.dispose = function() { 
+Mesh.prototype.dispose = function() { 
 	this.geometry.dispose() 
 }
 
-THREE.Group.prototype.dispose = function() { 
+Group.prototype.dispose = function() { 
 	this.children.forEach(function(child) { 
 		child.geometry.dispose() 
 	}) 
 }
 
-THREE.Group.prototype.clone = function() { 
-	var clone = new THREE.Group();
+Group.prototype.clone = function() { 
+	var clone = new Group();
 
 	this.children.forEach(function(child) {
 		clone.add(child.clone())
@@ -405,9 +415,8 @@ THREE.Group.prototype.clone = function() {
 	return clone; 
 }
 
-THREE.Group.prototype.removeAll = function(dispose = false) { 
-	var self = this,
-			child;
+Group.prototype.removeAll = function(dispose = false) { 
+	var child;
 
 	while (this.children.length) {
 		child = this.children[0];
@@ -416,5 +425,4 @@ THREE.Group.prototype.removeAll = function(dispose = false) {
 			child.dispose();
 		}
 	}
-	
 }

@@ -103,4 +103,4 @@ MemoryCache.prototype.clear = function () {
 	this._timeouts = Object.create(null);
 };
 
-export { MemoryCache }
+export default MemoryCache;

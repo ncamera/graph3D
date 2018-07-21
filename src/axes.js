@@ -145,4 +145,4 @@ function linspace(a, b, n) {
 	return ret
 }
 
-export { Axes }
+export default Axes;

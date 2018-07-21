@@ -16,5 +16,7 @@ export {
 	changeZoomType,
 	changeZoom,
 	changeSize,
-	setAxesVisibility
+	changeAxesSize,
+	showAxes,
+	reset
 } from './src/graph3d';
