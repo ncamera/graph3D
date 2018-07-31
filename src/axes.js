@@ -13,13 +13,13 @@ Axes = function() {
 	this.group = group;
 }
 
-function setScale(axes, zoom) {
+function setScale(axes) {
 	var i, child;
 	
-	var xPoints = linspace(axes.x.min, axes.x.max, axes.x.max - axes.x.min + 1);
-	var yPoints = linspace(axes.y.min, axes.y.max, axes.y.max - axes.y.min + 1);
-	var zPoints = linspace(axes.z.min, axes.z.max, axes.z.max - axes.z.min + 1);
-	
+	var xPoints = linspace(axes.yMin, axes.yMax, axes.yMax - axes.yMin + 1); 
+	var yPoints = linspace(axes.zMin, axes.zMax, axes.zMax - axes.zMin + 1);
+	var zPoints = linspace(axes.xMin, axes.xMax, axes.xMax - axes.xMin + 1);	
+
 	while(this.group.children.length > 0){ 
 		child = this.group.children[0];
 		this.group.remove(child); 
@@ -30,39 +30,39 @@ function setScale(axes, zoom) {
 	}
 
 	this.scale = {
-		x: axes.x,
-		y: axes.y,
-		z: axes.z
+		x: axes.y,
+		y: axes.z,
+		z: axes.x
 	}
 
 	for (i=0; i < xPoints.length; i++) {
 		this.group.add(
-			drawLine(xPoints[i], xPoints[i], axes.y.min, axes.y.max, axes.z.min, axes.z.min),
-			drawLine(xPoints[i], xPoints[i], axes.y.min, axes.y.min, axes.z.min, axes.z.max + AXE_TICK_PADDING), 
-			drawTickLabel(xPoints[i], axes.y.min, axes.z.max + AXE_LABEL_PADDING, xPoints[i].toFixed(0))
+			drawLine(xPoints[i], xPoints[i], axes.zMin, axes.zMax, axes.xMin, axes.xMin),
+			drawLine(xPoints[i], xPoints[i], axes.zMin, axes.zMin, axes.xMin, axes.xMax + AXE_TICK_PADDING), 
+			drawTickLabel(xPoints[i], axes.zMin, axes.xMax + AXE_LABEL_PADDING, xPoints[i].toFixed(0))
 		);
 	}
 
 	for (i=0; i < yPoints.length; i++) {
 		this.group.add(
-			drawLine(axes.x.min, axes.x.max, yPoints[i], yPoints[i], axes.z.min, axes.z.min),
-			drawLine(axes.x.min, axes.x.min, yPoints[i], yPoints[i], axes.z.min, axes.z.max)
+			drawLine(axes.yMin, axes.yMax, yPoints[i], yPoints[i], axes.xMin, axes.xMin),
+			drawLine(axes.yMin, axes.yMin, yPoints[i], yPoints[i], axes.xMin, axes.xMax)
 		)
 		if (i != 0) 
 		this.group.add(
-				drawLine(axes.x.min - AXE_TICK_PADDING, axes.x.min, yPoints[i], yPoints[i], axes.z.max, axes.z.max),
-				drawTickLabel(axes.x.min - AXE_LABEL_PADDING, yPoints[i], axes.z.max, yPoints[i].toFixed(0))
+				drawLine(axes.yMin - AXE_TICK_PADDING, axes.yMin, yPoints[i], yPoints[i], axes.xMax, axes.xMax),
+				drawTickLabel(axes.yMin - AXE_LABEL_PADDING, yPoints[i], axes.xMax, yPoints[i].toFixed(0))
 			)
 	} 
 
 	for (i=0; i < zPoints.length; i++) {
 		this.group.add(
-			drawLine(axes.x.min, axes.x.max + AXE_TICK_PADDING, axes.y.min, axes.y.min, zPoints[i], zPoints[i]),
-			drawLine(axes.x.min, axes.x.min, axes.y.min, axes.y.max, zPoints[i], zPoints[i])
+			drawLine(axes.yMin, axes.yMax + AXE_TICK_PADDING, axes.zMin, axes.zMin, zPoints[i], zPoints[i]),
+			drawLine(axes.yMin, axes.yMin, axes.zMin, axes.zMax, zPoints[i], zPoints[i])
 		) 
 		if (i != 0) 
 		this.group.add(
-				drawTickLabel(axes.x.max + AXE_LABEL_PADDING , axes.y.min , zPoints[i] , zPoints[i].toFixed(0))
+				drawTickLabel(axes.yMax + AXE_LABEL_PADDING , axes.zMin , zPoints[i] , zPoints[i].toFixed(0))
 			)
 	}
 }

@@ -18,5 +18,6 @@ export {
 	changeSize,
 	changeAxesSize,
 	showAxes,
+	changeOptions,
 	reset
 } from './src/graph3d';

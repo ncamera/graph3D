@@ -1,4 +1,4 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, PointLight, MeshBasicMaterial, GridHelper, CubeGeometry, SphereGeometry} from 'three'
+import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, PointLight, Line, MeshBasicMaterial, GridHelper, CubeGeometry, SphereGeometry} from 'three'
 
 import * as Figures from './figures'
 import Axes from './axes';
@@ -7,10 +7,13 @@ import * as THREE from 'three';
 import './orbit_controls';
 
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
-const DEFAULT_ZOOM = { x:1, y:1, z:1 };
 const ZOOM_TYPE = { ALL:1, X: 2, Y: 3, Z: 4 };
 
 var figureKey, figureMesh, cachedUsed, _group;
+
+var _options = {
+	quality: 30
+}
 
 var _props = {
 	requireUpdate: false,
@@ -65,7 +68,7 @@ export function initialize(domElem) {
 
 	_scene.add(_camera);
 	_camera.add(_light);
-	_camera.position.set(5,5,8)
+	_camera.position.set(5,5,25)
 
 	_controls = new THREE.OrbitControls(_camera, _renderer.domElement);
 	
@@ -78,12 +81,13 @@ export function initialize(domElem) {
 
 	_axes = new Axes();
 	_axes.setScale({
-			x: Object.assign({}, DEFAULT_AXES_WIDTH),
-			y: Object.assign({}, DEFAULT_AXES_WIDTH),
-			z: Object.assign({}, DEFAULT_AXES_WIDTH)
-		},
-		DEFAULT_ZOOM
-	)
+		xMin: DEFAULT_AXES_WIDTH.min,
+		xMax: DEFAULT_AXES_WIDTH.max,
+		yMin: DEFAULT_AXES_WIDTH.min,
+		yMax: DEFAULT_AXES_WIDTH.max,
+		zMin: DEFAULT_AXES_WIDTH.min,
+		zMax: DEFAULT_AXES_WIDTH.max
+	})
 
 	_axes.addToScene(_scene);
 	
@@ -94,7 +98,7 @@ export function initialize(domElem) {
 	domElem.appendChild(_renderer.domElement);
 	
 	_renderer.render(_scene, _camera);	
-
+	 console.log("INTIALIZED == >")
 	_initialized = true;
 }
 
@@ -108,10 +112,10 @@ export function drawFigures(figures) {
 
 	figures.forEach((figure) => {
 		figureMesh = drawFigure(figure);
-		figureMesh.rotation.set(Math.radians(figure.rot.x), Math.radians(figure.rot.y), Math.radians(figure.rot.z))
+		figureMesh.rotation.set(Math.radians(figure.rot.y), Math.radians(figure.rot.z), Math.radians(figure.rot.x))
 	
-		if (figure.kind != 'polygon') {
-			figureMesh.position.set(figure.x, figure.y, figure.z);
+		if (figure.kind != 'polygon' && figure.kind != 'line3D') {
+			figureMesh.position.set(figure.y, figure.z, figure.x);
 		}
 
 		_group.add(figureMesh)
@@ -162,7 +166,8 @@ export function clear(stopAnimation = true) {
 	}
 
 	_group.removeAll(stopAnimation);
-	
+
+	_renderer.render(_scene, _camera);	
 }
 
 export function drawMath(isParametric, figure) {
@@ -183,9 +188,9 @@ export function drawMath(isParametric, figure) {
 	_props.updateCallback();
 }
 
-export function setScale(props) {
+export function changeAxesSize(axes) {
 	if (_initialized) {
-		_axes.setScale(props.axes, props.zoom)
+		_axes.setScale(axes)
 
 		if (_props.requireUpdate) {
 			_props.updateCallback();
@@ -239,6 +244,14 @@ export function changeZoom(increase = true) {
 	}
 }
 
+export function changeOptions(options) {
+	for (var p in options) {
+    if( _options.hasOwnProperty(p) ) {
+      _options[p] = options[p];
+    } 
+  }           
+}
+
 export function reset() {
 	_props.zoom.x = 1;
 	_props.zoom.y = 1;
@@ -250,6 +263,8 @@ export function reset() {
 	_axes.group.scale.set(x,y,z);
 
 	_controls.reset();
+
+	_renderer.render(_scene, _camera);
 }
 
 var animate = function() {
@@ -282,10 +297,10 @@ var animate = function() {
 
 		cachedUsed[figureKey] = true;
 		
-		figureMesh.rotation.set(Math.radians(figure.rot.x), Math.radians(figure.rot.y), Math.radians(figure.rot.z))
+		figureMesh.rotation.set(Math.radians(figure.rot.y), Math.radians(figure.rot.z), Math.radians(figure.rot.x))
 		
 		if (figure.kind != 'polygon') {
-			figureMesh.position.set(figure.x, figure.y, figure.z);
+			figureMesh.position.set(figure.y, figure.z, figure.x);
 		}
 
 		_group.add(figureMesh)	
@@ -305,16 +320,19 @@ var animate = function() {
 var drawFigure = function(figure) {
 	switch (figure.kind) {
 		case 'sphere':
-			return Figures.SphereFigure(figure);
+			return Figures.SphereFigure(figure, _options.quality);
 		
 		case 'cube':
-			return Figures.CubeFigure(figure);
+			return Figures.CubeFigure(figure, _options.quality);
 
 		case 'cylinder':
-			return Figures.CylinderFigure(figure);
+			return Figures.CylinderFigure(figure, _options.quality);
 		
 		case 'ring':
-			return Figures.TorusFigure(figure);
+			return Figures.TorusFigure(figure, _options.quality);
+
+		case 'line3D':
+			return Figures.LineFigure(figure);
 
 		case 'circle':
 			return Figures.CircleFigure(figure);
@@ -354,6 +372,9 @@ function getFigureKey(figure) {
 			const pointsAsText = figure.puntos.map(p => `${p[0]}-${p[1]}`).join('-')
 			key = `po${pointsAsText}-${figure.color}`
 			break;
+		case 'line':
+			key = `line-${figure.pts[0].x}-${figure.pts[0].y}-${figure.pts[0].z}-${figure.pts[1].x}-${figure.pts[1].y}-${figure.pts[1].z}-${figure.color}`
+			break;
 	}
 
 	return key;
@@ -388,13 +409,17 @@ function onMouseWheel(event) {
 		}
 		const {x,y,z} = _props.zoom;
 
-		_group.scale.set(x,y,z);
-		_axes.group.scale.set(x,y,z);
+		_group.scale.set(y,z,x);
+		_axes.group.scale.set(y,z,x);
 		_renderer.render(_scene, _camera);
 	}
 }
 
 // THREE extensions
+Line.prototype.dispose = function() { 
+	this.geometry.dispose() 
+}
+
 Mesh.prototype.dispose = function() { 
 	this.geometry.dispose() 
 }

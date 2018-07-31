@@ -114,6 +114,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 		scope.object.position.copy( scope.position0 );
 		scope.object.zoom = scope.zoom0;
 
+		scale = 1.5;
+
 		scope.object.updateProjectionMatrix();
 		scope.dispatchEvent( changeEvent );
 

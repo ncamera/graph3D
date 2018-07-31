@@ -35,28 +35,28 @@ function CubeFigure(figure) {
 	)
 }
 
-function SphereFigure(figure) {
+function SphereFigure(figure, quality) {
 	return new THREE.Mesh( 
-		new THREE.SphereGeometry(figure.r, SPHERE_QUALITY, SPHERE_QUALITY),
+		new THREE.SphereGeometry(figure.r, quality, quality),
 		new THREE.MeshLambertMaterial( { color: new THREE.Color(figure.color) })
 	)
 }
 
-function CylinderFigure(figure) {
+function CylinderFigure(figure, quality) {
 	return new THREE.Mesh(
-		new THREE.CylinderGeometry(figure.r0, figure.r1, figure.h, 32 ), 
+		new THREE.CylinderGeometry(figure.r0, figure.r1, figure.h, quality), 
 		new THREE.MeshLambertMaterial( { color: new THREE.Color(figure.color) } )
 	)
 }
 
 // https://threejs.org/docs/#api/geometries/TorusGeometry
-function TorusFigure(figure) {
+function TorusFigure(figure, quality) {
 	// r = radius
 	// w = figure.w,
 	// h = radialsegments
 	console.log(figure)
 	return new THREE.Mesh(
-		new THREE.TorusGeometry(figure.r, figure.w, figure.h, 30,  6.3),
+		new THREE.TorusGeometry(figure.r, figure.w, figure.h, quality,  6.3),
 		new THREE.MeshLambertMaterial( { color: new THREE.Color(figure.color) } )
 	)
 }
@@ -101,6 +101,20 @@ function PolygonFigure(figure) {
 	var mesh = getShapeMesh(shape, figure.color, false);
 
 	return mesh; 
+}
+
+function LineFigure(figure) {
+	var geometry = new THREE.Geometry();
+	geometry.vertices.push(new THREE.Vector3(figure.pts[0].y, figure.pts[0].z, figure.pts[0].x) );
+	geometry.vertices.push(new THREE.Vector3( figure.pts[1].y, figure.pts[1].z, figure.pts[1].x) );
+
+	return new THREE.Line(
+		geometry, 
+		new THREE.LineBasicMaterial( {
+			color: new THREE.Color(figure.color),
+			linewidth: 5
+		})
+	);
 }
 
 function getShapeMesh(shape, color, centered) {
@@ -228,6 +242,7 @@ export {
 	RectangleFigure, 
 	CircleFigure, 
 	PolygonFigure, 
+	LineFigure,
 	MathFunctionFigure, 
 	MathParametricFigure 
 }
