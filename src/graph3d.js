@@ -1,10 +1,9 @@
-import { Scene, PerspectiveCamera, WebGLRenderer, Group, Mesh, PointLight, Line, MeshBasicMaterial, GridHelper, CubeGeometry, SphereGeometry} from 'three'
-
 import * as Figures from './figures'
+var THREE = require('three')
+
 import Axes from './axes';
 import MemoryCache from './memory_cache';
-import * as THREE from 'three';
-import './orbit_controls';
+import OrbitControls from './orbit_controls';
 
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 const ZOOM_TYPE = { ALL:1, X: 2, Y: 3, Z: 4 };
@@ -53,24 +52,24 @@ export function initialize(domElem) {
 	var width = domElem.getBoundingClientRect().width;
 	var height = domElem.getBoundingClientRect().height;
 
-	_scene = new Scene();
+	_scene = new THREE.Scene();
 
-	_camera = new PerspectiveCamera(50, width/height,0.1, 1000);
+	_camera = new THREE.PerspectiveCamera(50, width/height,0.1, 1000);
 //	_camera = new THREE.OrthographicCamera(width/-25, width/25, height/25, height/-25, -100, 1000);
 
-	_renderer = new WebGLRenderer({ antialias: true });
+	_renderer = new THREE.WebGLRenderer({ antialias: true });
 	_renderer.setSize(width, height);
 	_renderer.setClearColor(0xffffff, 1);
 	_renderer.sortObjects = false;
 	
-	_light = new PointLight(0xffffff);
+	_light = new THREE.PointLight(0xffffff);
 	_light.position.set(0,0,0);
 
 	_scene.add(_camera);
 	_camera.add(_light);
 	_camera.position.set(5,5,25)
 
-	_controls = new THREE.OrbitControls(_camera, _renderer.domElement);
+	_controls = new OrbitControls(_camera, _renderer.domElement);
 	
 	_controls.addEventListener('change', () => { 
 		_light.position.copy(_camera.getWorldPosition() );
@@ -112,7 +111,10 @@ export function drawFigures(figures) {
 
 	figures.forEach((figure) => {
 		figureMesh = drawFigure(figure);
-		figureMesh.rotation.set(Math.radians(figure.rot.y), Math.radians(figure.rot.z), Math.radians(figure.rot.x))
+
+		if (figure.kind != 'line3D') {
+			figureMesh.rotation.set(Math.radians(figure.rot.y), Math.radians(figure.rot.z), Math.radians(figure.rot.x))
+		}
 	
 		if (figure.kind != 'polygon' && figure.kind != 'line3D') {
 			figureMesh.position.set(figure.y, figure.z, figure.x);
@@ -416,22 +418,22 @@ function onMouseWheel(event) {
 }
 
 // THREE extensions
-Line.prototype.dispose = function() { 
+THREE.Line.prototype.dispose = function() { 
 	this.geometry.dispose() 
 }
 
-Mesh.prototype.dispose = function() { 
+THREE.Mesh.prototype.dispose = function() { 
 	this.geometry.dispose() 
 }
 
-Group.prototype.dispose = function() { 
+THREE.Group.prototype.dispose = function() { 
 	this.children.forEach(function(child) { 
 		child.geometry.dispose() 
 	}) 
 }
 
-Group.prototype.clone = function() { 
-	var clone = new Group();
+THREE.Group.prototype.clone = function() { 
+	var clone = new THREE.Group();
 
 	this.children.forEach(function(child) {
 		clone.add(child.clone())
@@ -440,7 +442,7 @@ Group.prototype.clone = function() {
 	return clone; 
 }
 
-Group.prototype.removeAll = function(dispose = false) { 
+THREE.Group.prototype.removeAll = function(dispose = false) { 
 	var child;
 
 	while (this.children.length) {

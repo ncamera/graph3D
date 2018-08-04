@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-const SPHERE_QUALITY = 15;
 const MATH_QUALITY = 50;
 const MATH_WIREFRAME_B64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAVElEQVRo3u3RAREAMAwCMTr/nlsd3PIKyJGUN0l2t3X9zGt/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgB0B9B1PXA3yVG5HyAAAAAElFTkSuQmCC'
 
@@ -54,7 +53,6 @@ function TorusFigure(figure, quality) {
 	// r = radius
 	// w = figure.w,
 	// h = radialsegments
-	console.log(figure)
 	return new THREE.Mesh(
 		new THREE.TorusGeometry(figure.r, figure.w, figure.h, quality,  6.3),
 		new THREE.MeshLambertMaterial( { color: new THREE.Color(figure.color) } )
