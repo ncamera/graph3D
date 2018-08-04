@@ -269,6 +269,10 @@ export function reset() {
 	_renderer.render(_scene, _camera);
 }
 
+export function forceUpdateRenderer() {
+	_renderer.render(_scene, _camera);
+}
+
 var animate = function() {
 	// clean used cached figures
 	cachedUsed = {};

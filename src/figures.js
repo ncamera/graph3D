@@ -1,12 +1,12 @@
 import * as THREE from 'three';
 
 const MATH_QUALITY = 50;
-const MATH_WIREFRAME_B64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAVElEQVRo3u3RAREAMAwCMTr/nlsd3PIKyJGUN0l2t3X9zGt/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgB0B9B1PXA3yVG5HyAAAAAElFTkSuQmCC'
+//const MATH_WIREFRAME_B64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAVElEQVRo3u3RAREAMAwCMTr/nlsd3PIKyJGUN0l2t3X9zGt/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgB0B9B1PXA3yVG5HyAAAAAElFTkSuQmCC'
 
-var wireTexture = new THREE.TextureLoader().load(MATH_WIREFRAME_B64, texture => {
-	texture.wrapS = texture.wrapT = THREE.RepeatWrapping; 
-	texture.repeat.set(40, 40);
-});
+// var wireTexture = new THREE.TextureLoader().load(MATH_WIREFRAME_B64, texture => {
+// 	texture.wrapS = texture.wrapT = THREE.RepeatWrapping; 
+// 	texture.repeat.set(40, 40);
+// });
 
 var SHAPE_PARAMS = { 
 	polygonOffsetUnits: 1,
@@ -102,6 +102,8 @@ function PolygonFigure(figure) {
 }
 
 function LineFigure(figure) {
+	const color = figure.color  == 'white' ? 'gray' : figure.color;
+
 	var geometry = new THREE.Geometry();
 	geometry.vertices.push(new THREE.Vector3(figure.pts[0].y, figure.pts[0].z, figure.pts[0].x) );
 	geometry.vertices.push(new THREE.Vector3( figure.pts[1].y, figure.pts[1].z, figure.pts[1].x) );
@@ -109,7 +111,7 @@ function LineFigure(figure) {
 	return new THREE.Line(
 		geometry, 
 		new THREE.LineBasicMaterial( {
-			color: new THREE.Color(figure.color),
+			color: new THREE.Color(color),
 			linewidth: 5
 		})
 	);
@@ -144,7 +146,8 @@ function getShapeMesh(shape, color, centered) {
 function getMathMesh(geometry) {
 	var wireMaterial;
 
-	wireMaterial = new THREE.MeshBasicMaterial({ map: wireTexture, vertexColors: THREE.VertexColors, side:THREE.DoubleSide });
+//	wireMaterial = new THREE.MeshBasicMaterial({ map: wireTexture, vertexColors: THREE.VertexColors, side:THREE.DoubleSide });
+	wireMaterial = new THREE.MeshBasicMaterial({ map: null, vertexColors: THREE.VertexColors, side:THREE.DoubleSide });
 
 	geometry.computeBoundingBox();
 
