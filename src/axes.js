@@ -73,14 +73,16 @@ Axes.prototype.addToScene = function(scene) {
 		scene.add(this.group)
 };
 
-var materialLine = (isZero) => new THREE.LineBasicMaterial({
-	color: 'black',
-	linewidth: 0.1,
-	transparent: true, 
-	opacity: isZero ? 0.6 : 0.2
-});
+var materialLine = function(isZero) {
+	return new THREE.LineBasicMaterial({
+		color: 'black',
+		linewidth: 0.1,
+		transparent: true, 
+		opacity: isZero ? 0.6 : 0.2
+	});
+}
 
-var drawLine = (x0, x1, y0, y1, z0, z1) => {
+var drawLine = function(x0, x1, y0, y1, z0, z1) {
 	var geometry = new THREE.Geometry();
 	geometry.vertices.push(new THREE.Vector3(x0, y0, z0));
 	geometry.vertices.push(new THREE.Vector3(x1, y1, z1));
@@ -88,13 +90,13 @@ var drawLine = (x0, x1, y0, y1, z0, z1) => {
 	return new THREE.Line( geometry, materialLine(!x0 || !y0 || !z0) );	
 }
 
-var drawTickLabel = (x0, y0, z0, text) => {
+var drawTickLabel = function(x0, y0, z0, text) {
 	// create a canvas element
 	var canvas = document.createElement('canvas');
 	var context = canvas.getContext('2d');
 
 	// https://bocoup.com/blog/find-the-closest-power-of-2-with-javascript
-	var nearestPow2 = (aSize) => Math.pow(2, Math.round(Math.log(aSize) / Math.log(2)));
+	var nearestPow2 = function(aSize) { return Math.pow(2, Math.round(Math.log(aSize) / Math.log(2))); }
 
 	// Set resolution depending on absolute text size (between 35 and 5, increases with smaller values)
 	var canvas_text_res = 200;

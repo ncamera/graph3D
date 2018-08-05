@@ -71,7 +71,7 @@ export function initialize(domElem) {
 
 	_controls = new OrbitControls(_camera, _renderer.domElement);
 	
-	_controls.addEventListener('change', () => { 
+	_controls.addEventListener('change', function() { 
 		_light.position.copy(_camera.getWorldPosition() );
 		_renderer.render(_scene, _camera)
 	});
@@ -97,7 +97,7 @@ export function initialize(domElem) {
 	domElem.appendChild(_renderer.domElement);
 	
 	_renderer.render(_scene, _camera);	
-	 console.log("INTIALIZED == >")
+
 	_initialized = true;
 }
 
@@ -109,7 +109,7 @@ export function drawFigures(figures) {
 	
 	clear(true);
 
-	figures.forEach((figure) => {
+	figures.forEach(function(figure) {
 		figureMesh = drawFigure(figure);
 
 		if (figure.kind != 'line3D') {
@@ -159,8 +159,9 @@ export function changeSpeedAnimation(delay) {
 	_animation.delay = delay;
 }
 
-export function clear(stopAnimation = true) {
+export function clear(_stopAnimation) {
 
+	const stopAnimation = _stopAnimation != undefined  ? _stopAnimation : true;
 	if (stopAnimation) {
 		_animation.running = false;
 		clearTimeout(_animation.timeoutRef);
@@ -230,10 +231,12 @@ export function changeZoomType(type) {
 	}
 }
 
-export function changeZoom(increase = true) {
+export function changeZoom(_increase) {
 	if (_initialized) {
 
-		let zoomEvent = new Event('wheel');
+		const increase = _increase != undefined ? _increase : true;
+
+		var zoomEvent = new Event('wheel');
 
 		if (increase) {
 			zoomEvent.deltaY = -100;
@@ -259,7 +262,9 @@ export function reset() {
 	_props.zoom.y = 1;
 	_props.zoom.z = 1;
 
-	const {x,y,z} = _props.zoom;
+	const x = _props.zoom.x;
+	const y = _props.zoom.y;
+	const z = _props.zoom.z;
 
 	_group.scale.set(x,y,z);
 	_axes.group.scale.set(x,y,z);
@@ -278,7 +283,7 @@ var animate = function() {
 	cachedUsed = {};
 
 	// Delay animation 
-	_animation.timeoutRef = setTimeout(() => {
+	_animation.timeoutRef = setTimeout(function() {
 		if (_animation.running)
 			_animation.id =	requestAnimationFrame(animate)
 	},_animation.delay)
@@ -286,7 +291,7 @@ var animate = function() {
 	// Remove all non statics objects from scene
 	clear(false);
 
-	_props.data[_animation.key].forEach(figure => {
+	_props.data[_animation.key].forEach(function(figure) {
 		figureKey = getFigureKey(figure);
 		figureMesh = _cache.get(figureKey);
 		
@@ -353,33 +358,33 @@ var drawFigure = function(figure) {
 
 // Helpers
 function getFigureKey(figure) {
-	let key = figure.kind.substr(0,2);
+	var key = figure.kind.substr(0,2);
 
 	switch (figure.kind) {
 		case 'sphere':
-			key = `sp-${figure.r}-${figure.color}`
+			key = "sp-" + figure.r + "-" + figure.color;
 			break;
 		case 'cube':
-			key = `cu-${figure.w}-${figure.h}-${figure.l}-${figure.color}`
+			key = "cu-" + figure.w + "-" + figure.h + "-" + figure.l + "-" + figure.color;
 			break;
 		case 'cylinder':
-			key = `cy-${figure.r0}-${figure.r1}-${figure.color}`
+			key = "cy-" + figure.r0 + "-" +  figure.r1 + "-" + figure.color;
 			break;
 		case 'ring':
-			key = `ri-${figure.r}-${figure.w}-${figure.h}-${figure.color}`
+			key = "ri-" + figure.r + "-" + figure.w + "-" + figure.h + "-" + figure.color;
 			break;
 		case 'rectangle':
-			key = `re-${figure.w}-${figure.h}-${figure.color}`
+			key = "re-" + figure.w + "-" + figure.h + "-" + figure.color;
 			break;
 		case 'circle':
-			key = `ci-${figure.r}-${figure.color}`
+			key = "ci-" + figure.r + "-" + figure.color;
 			break;
 		case 'polygon':
-			const pointsAsText = figure.puntos.map(p => `${p[0]}-${p[1]}`).join('-')
-			key = `po${pointsAsText}-${figure.color}`
+			const pointsAsText = figure.puntos.map(function(p) { return p[0]+ "-" + p[1]}).join('-')
+			key = "po-" + pointsAsText + "-" + figure.color;
 			break;
 		case 'line':
-			key = `line-${figure.pts[0].x}-${figure.pts[0].y}-${figure.pts[0].z}-${figure.pts[1].x}-${figure.pts[1].y}-${figure.pts[1].z}-${figure.color}`
+			key = "line-" + figure.pts[0].x + "-" + figure.pts[0].y + "-" + figure.pts[0].z + "-" + figure.pts[1].x + "-" + figure.pts[1].y + "-" + figure.pts[1].z + "-" + figure.color;
 			break;
 	}
 
@@ -413,7 +418,10 @@ function onMouseWheel(event) {
 				_props.zoom.z += delta;
 				break;
 		}
-		const {x,y,z} = _props.zoom;
+
+		const x = _props.zoom.x;
+		const y = _props.zoom.y;
+		const z = _props.zoom.z;
 
 		_group.scale.set(y,z,x);
 		_axes.group.scale.set(y,z,x);
@@ -446,8 +454,10 @@ THREE.Group.prototype.clone = function() {
 	return clone; 
 }
 
-THREE.Group.prototype.removeAll = function(dispose = false) { 
+THREE.Group.prototype.removeAll = function(_dispose) { 
 	var child;
+
+	const dispose = _dispose != undefined ? _dispose : false;
 
 	while (this.children.length) {
 		child = this.children[0];
