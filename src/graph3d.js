@@ -48,7 +48,7 @@ var _initialized = false;
 /**
  * @param  {string} domElem dom node name, where canvas will put it
  */
-export function initialize(domElem) {
+export function initialize(domElem, manualRenderer = false) {
 	var width = domElem.getBoundingClientRect().width;
 	var height = domElem.getBoundingClientRect().height;
 
@@ -96,7 +96,9 @@ export function initialize(domElem) {
 
 	domElem.appendChild(_renderer.domElement);
 	
-	_renderer.render(_scene, _camera);	
+	if (!manualRenderer) {
+		_renderer.render(_scene, _camera);	
+	}
 
 	_initialized = true;
 }
