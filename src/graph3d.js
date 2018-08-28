@@ -73,6 +73,9 @@ export function initialize(domElem, manualRenderer = false) {
 	
 	_controls.addEventListener('change', function() { 
 		_light.position.copy(_camera.getWorldPosition() );
+
+		console.info("graph3d ----> _controls.changed event");
+
 		_renderer.render(_scene, _camera)
 	});
 
@@ -277,6 +280,7 @@ export function reset() {
 }
 
 export function forceUpdateRenderer() {
+	console.info("graph3d ----> forceUpdateRenderer");
 	_renderer.render(_scene, _camera);
 }
 
