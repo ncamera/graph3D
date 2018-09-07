@@ -48,7 +48,7 @@ var _initialized = false;
 /**
  * @param  {string} domElem dom node name, where canvas will put it
  */
-export function initialize(domElem, manualRenderer = false) {
+export function initialize(domElem, manualRenderer) {
 	var width = domElem.getBoundingClientRect().width;
 	var height = domElem.getBoundingClientRect().height;
 
