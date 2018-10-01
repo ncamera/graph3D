@@ -103,14 +103,14 @@ function LineFigure(figure) {
 	const color = figure.color  == 'white' ? 'gray' : figure.color;
 
 	var geometry = new THREE.Geometry();
-	geometry.vertices.push(new THREE.Vector3(figure.pts[0].y, figure.pts[0].z, figure.pts[0].x) );
-	geometry.vertices.push(new THREE.Vector3( figure.pts[1].y, figure.pts[1].z, figure.pts[1].x) );
+	geometry.vertices.push(new THREE.Vector3(figure.pts[0][1], figure.pts[0][2], figure.pts[0][0]) );
+	geometry.vertices.push(new THREE.Vector3( figure.pts[1][1], figure.pts[1][2], figure.pts[1][0]) );
 
 	return new THREE.Line(
 		geometry, 
 		new THREE.LineBasicMaterial( {
 			color: new THREE.Color(color),
-			linewidth: 5
+			linewidth: 1
 		})
 	);
 }

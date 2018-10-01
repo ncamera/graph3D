@@ -19,8 +19,5 @@ export {
 	changeAxesSize,
 	showAxes,
 	changeOptions,
-	reset,
-
-	// internal
-	forceUpdateRenderer
+	reset
 } from './src/graph3d';

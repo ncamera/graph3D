@@ -4,6 +4,7 @@ var THREE = require('three')
 import Axes from './axes';
 import MemoryCache from './memory_cache';
 import OrbitControls from './orbit_controls';
+// import Export from './export';
 
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 const ZOOM_TYPE = { ALL:1, X: 2, Y: 3, Z: 4 };
@@ -48,14 +49,13 @@ var _initialized = false;
 /**
  * @param  {string} domElem dom node name, where canvas will put it
  */
-export function initialize(domElem, manualRenderer) {
-	var width = domElem.getBoundingClientRect().width;
-	var height = domElem.getBoundingClientRect().height;
+export function initialize(domElem) {
+	var width = domElem.getBoundingClientRect().width || 50;
+	var height = domElem.getBoundingClientRect().height || 50;
 
 	_scene = new THREE.Scene();
 
 	_camera = new THREE.PerspectiveCamera(50, width/height,0.1, 1000);
-//	_camera = new THREE.OrthographicCamera(width/-25, width/25, height/25, height/-25, -100, 1000);
 
 	_renderer = new THREE.WebGLRenderer({ antialias: true });
 	_renderer.setSize(width, height);
@@ -73,9 +73,6 @@ export function initialize(domElem, manualRenderer) {
 	
 	_controls.addEventListener('change', function() { 
 		_light.position.copy(_camera.getWorldPosition() );
-
-		console.info("graph3d ----> _controls.changed event");
-
 		_renderer.render(_scene, _camera)
 	});
 
@@ -99,9 +96,7 @@ export function initialize(domElem, manualRenderer) {
 
 	domElem.appendChild(_renderer.domElement);
 	
-	if (!manualRenderer) {
-		_renderer.render(_scene, _camera);	
-	}
+	_renderer.render(_scene, _camera);	
 
 	_initialized = true;
 }
@@ -216,13 +211,18 @@ export function showAxes(visible) {
 }
 
 export function changeSize(size) {
+	const newAspect = size.width / size.height;
 
-	_camera.aspect = size.width / size.height;
-  _camera.updateProjectionMatrix();
+	if (_camera.aspect != newAspect ||
+		_renderer.getSize().width != size.width ||
+		_renderer.getSize().height != size.height) {
 
-	_renderer.setSize( size.width, size.height );
+		_camera.aspect = newAspect
+		_camera.updateProjectionMatrix();
 	
-	_renderer.render(_scene, _camera);	
+		_renderer.setSize( size.width, size.height );		
+		_renderer.render(_scene, _camera);	
+	}
 }
 
 export function changeZoomType(type) {
@@ -276,11 +276,6 @@ export function reset() {
 
 	_controls.reset();
 
-	_renderer.render(_scene, _camera);
-}
-
-export function forceUpdateRenderer() {
-	console.info("graph3d ----> forceUpdateRenderer");
 	_renderer.render(_scene, _camera);
 }
 
