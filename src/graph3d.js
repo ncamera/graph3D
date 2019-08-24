@@ -310,7 +310,9 @@ var animate = function() {
 
 		cachedUsed[figureKey] = true;
 		
-		figureMesh.rotation.set(Math.radians(figure.rot.y), Math.radians(figure.rot.z), Math.radians(figure.rot.x))
+		if (figure.kind != 'line3D') {
+			figureMesh.rotation.set(Math.radians(figure.rot.y), Math.radians(figure.rot.z), Math.radians(figure.rot.x))
+		}
 		
 		if (figure.kind != 'polygon') {
 			figureMesh.position.set(figure.y, figure.z, figure.x);
