@@ -911,7 +911,8 @@ var OrbitControls = function ( object, domElement ) {
 	scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
 	scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
 
-	window.addEventListener( 'keydown', onKeyDown, false );
+	// bug 3d matefun angular 4
+	//	window.addEventListener( 'keydown', onKeyDown, false );
 
 	// force an update at start
 

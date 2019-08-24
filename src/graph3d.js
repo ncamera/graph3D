@@ -165,7 +165,8 @@ export function clear(_stopAnimation) {
 	if (stopAnimation) {
 		_animation.running = false;
 		clearTimeout(_animation.timeoutRef);
-		cancelAnimationFrame(_animation.id);
+		// bug 3D goes blank
+		//	cancelAnimationFrame(_animation.id);
 	}
 
 	_group.removeAll(stopAnimation);
