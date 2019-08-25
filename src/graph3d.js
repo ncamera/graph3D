@@ -314,7 +314,7 @@ var animate = function() {
 			figureMesh.rotation.set(Math.radians(figure.rot.y), Math.radians(figure.rot.z), Math.radians(figure.rot.x))
 		}
 		
-		if (figure.kind != 'polygon') {
+		if (figure.kind != 'polygon' && figure.kind != 'line3D') {
 			figureMesh.position.set(figure.y, figure.z, figure.x);
 		}
 
