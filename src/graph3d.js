@@ -387,8 +387,8 @@ function getFigureKey(figure) {
 			const pointsAsText = figure.puntos.map(function(p) { return p[0]+ "-" + p[1]}).join('-')
 			key = "po-" + pointsAsText + "-" + figure.color;
 			break;
-		case 'line':
-			key = "line-" + figure.pts[0].x + "-" + figure.pts[0].y + "-" + figure.pts[0].z + "-" + figure.pts[1].x + "-" + figure.pts[1].y + "-" + figure.pts[1].z + "-" + figure.color;
+		case 'line3D':
+			key = "line-" + figure.pts[0] + "-" + figure.pts[0] + "-" + figure.pts[0] + "-" + figure.pts[1] + "-" + figure.pts[1] + "-" + figure.pts[1] + "-" + figure.color;
 			break;
 	}
 
