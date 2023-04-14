@@ -32,7 +32,7 @@ import {
   createFigure3DVertex
 } from "./graph3d-utils";
 import { REMOVE_VERTEX_PREDICATE } from "./figures-constants";
-import { MathFunctionFigure, MathParametricFigure } from "./figures";
+// import { MathFunctionFigure, MathParametricFigure } from "./figures";
 
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 
@@ -263,22 +263,22 @@ export function clearSceneObjects(stopAnimation = true) {
   _renderer.render(_scene, _camera);
 }
 
-export function drawMath(isParametric, figure) {
-  _props.requireUpdate = true;
-  _props.data = figure;
+// export function drawMath(isParametric, figure) {
+//   _props.requireUpdate = true;
+//   _props.data = figure;
 
-  _props.updateCallback = function () {
-    const figureMesh = isParametric
-      ? MathParametricFigure(_axes.scale, figure)
-      : MathFunctionFigure(_axes.scale, _props.data);
+//   _props.updateCallback = function () {
+//     const figureMesh = isParametric
+//       ? MathParametricFigure(_axes.scale, figure)
+//       : MathFunctionFigure(_axes.scale, _props.data);
 
-    clearSceneObjects();
-    _group.add(figureMesh);
-    _renderer.render(_scene, _camera);
-  };
+//     clearSceneObjects();
+//     _group.add(figureMesh);
+//     _renderer.render(_scene, _camera);
+//   };
 
-  _props.updateCallback();
-}
+//   _props.updateCallback();
+// }
 
 export function changeAxesSize(axes) {
   if (_initialized) {

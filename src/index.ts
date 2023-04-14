@@ -4,7 +4,7 @@ export {
 
   // static figures
   drawFigures,
-  drawMath,
+  // drawMath,
 
   // animation
   initializeAnimation,
