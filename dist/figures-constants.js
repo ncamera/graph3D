@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.REMOVE_VERTEX_PREDICATE = exports.VERTEX_CONFIGURATION = exports.MIN_QUALITY_TO_DISCRIMINATE_CIRCLE = exports.MATH_WIREFRAME_B64 = exports.MATH_QUALITY = exports.LINE_DASHED_MATERIAL = exports.LINE_BASIC_MATERIAL = exports.DODECAHEDRON_VERTICES = exports.ICOSACAHEDRON_VERTICES = exports.OCTAHEDRON_VERTICES = exports.CUBE_VERTICES = exports.TETRAHEDRON_VERTICES = exports.r = exports.t = void 0;
+exports.REMOVE_VERTEX_PREDICATE = exports.VERTEX_CONFIGURATION = exports.MIN_QUALITY_TO_DISCRIMINATE_CIRCLE = exports.LINE_DASHED_MATERIAL = exports.LINE_BASIC_MATERIAL = exports.DODECAHEDRON_VERTICES = exports.ICOSACAHEDRON_VERTICES = exports.OCTAHEDRON_VERTICES = exports.CUBE_VERTICES = exports.TETRAHEDRON_VERTICES = exports.r = exports.t = void 0;
 const three_1 = require("three");
 exports.t = (1 + Math.sqrt(5)) / 2;
 exports.r = 1 / exports.t;
@@ -149,8 +149,9 @@ exports.LINE_DASHED_MATERIAL = new three_1.LineDashedMaterial({
     dashSize: 0.25,
     gapSize: 0.0625
 });
-exports.MATH_QUALITY = 50;
-exports.MATH_WIREFRAME_B64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAVElEQVRo3u3RAREAMAwCMTr/nlsd3PIKyJGUN0l2t3X9zGt/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgB0B9B1PXA3yVG5HyAAAAAElFTkSuQmCC";
+// export const MATH_QUALITY = 50;
+// export const MATH_WIREFRAME_B64 =
+//   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAVElEQVRo3u3RAREAMAwCMTr/nlsd3PIKyJGUN0l2t3X9zGt/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgB0B9B1PXA3yVG5HyAAAAAElFTkSuQmCC";
 exports.MIN_QUALITY_TO_DISCRIMINATE_CIRCLE = 3; // Triangle
 exports.VERTEX_CONFIGURATION = new three_1.MeshLambertMaterial({
     color: new three_1.Color("black"),

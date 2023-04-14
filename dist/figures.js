@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateVertexVisibility = exports.updateMetaDataVisibility = exports.updateEdgesVisibility = exports.updateQuality = exports.TorusFigure = exports.TetrahedronFigure = exports.SphereFigure = exports.OctahedronFigure = exports.MathParametricFigure = exports.MathFunctionFigure = exports.LineFigure = exports.JoinFigIn3DFigure = exports.IcosahedronFigure = exports.DodecahedronFigure = exports.CylinderFigure = exports.createFigureVertex = exports.createFigureMetaData = exports.createFigureEdges = exports.CubeFigure = exports.figureGeometryDictionary = void 0;
+exports.updateVertexVisibility = exports.updateMetaDataVisibility = exports.updateEdgesVisibility = exports.updateQuality = exports.TorusFigure = exports.TetrahedronFigure = exports.SphereFigure = exports.OctahedronFigure = exports.LineFigure = exports.JoinFigIn3DFigure = exports.IcosahedronFigure = exports.DodecahedronFigure = exports.CylinderFigure = exports.createFigureVertex = exports.createFigureMetaData = exports.createFigureEdges = exports.CubeFigure = exports.figureGeometryDictionary = void 0;
 const THREE = require("three");
+// import { Face3 } from "../node_modules/three/examples/jsm/deprecated/Geometry";
+// import { ParametricGeometry } from "../node_modules/three/examples/jsm/geometries/ParametricGeometry";
 const three_1 = require("three");
-const Geometry_1 = require("../node_modules/three/examples/jsm/deprecated/Geometry");
-const ParametricGeometry_1 = require("../node_modules/three/examples/jsm/geometries/ParametricGeometry");
 // Constants
 const figures_constants_1 = require("./figures-constants");
 const joinFigIn3D_1 = require("./joinFigIn3D");
@@ -78,10 +78,13 @@ const joinFigIn3DFigureEdgesDictionary = {
     }
 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-const wireTexture = new THREE.TextureLoader().load(figures_constants_1.MATH_WIREFRAME_B64, function (texture) {
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(40, 40);
-});
+// const wireTexture = new THREE.TextureLoader().load(
+//   MATH_WIREFRAME_B64,
+//   function (texture) {
+//     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+//     texture.repeat.set(40, 40);
+//   }
+// );
 exports.figureGeometryDictionary = {
     cube: (figure) => new THREE.BoxGeometry(figure.w, figure.h, figure.l),
     cylinder: (figure) => new THREE.CylinderGeometry(figure.r0, figure.r1, figure.h, configuration.quality),
@@ -308,85 +311,3 @@ function LineFigure(figure) {
     };
 }
 exports.LineFigure = LineFigure;
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// No se recomienda usar más Geometry, ya que fue deprecado. Lo mejor es usar
-// BufferGeometry que además rinde mejor. Acá se hace un WA para en la versión
-// más reciente de ThreeJS seguir usando Geometry sin romper el código legado
-// https://stackoverflow.com/questions/67767491/why-i-cant-create-face3-in-threejs-typescript-project
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function getMathMesh(geometry) {
-    var _a;
-    const wireMaterial = new three_1.MeshBasicMaterial({
-        map: wireTexture,
-        vertexColors: true,
-        side: THREE.DoubleSide
-    });
-    geometry.computeBoundingBox();
-    const yMin = geometry.boundingBox.min.y;
-    const yMax = geometry.boundingBox.max.y;
-    const yRange = yMax - yMin;
-    let color, point, face, numberOfSides, vertexIndex;
-    // faces are indexed using characters
-    const faceIndices = ["a", "b", "c", "d"];
-    // first, assign colors to vertices as desired
-    for (let i = 0; i < geometry.vertices.length; i++) {
-        point = geometry.vertices[i];
-        color = new THREE.Color(0xffffff);
-        color.setHSL((0.7 * (yMax - point.y)) / yRange, 1, 0.5);
-        geometry.colors[i] = color; // use this array for convenience
-    }
-    // copy the colors as necessary to the face's vertexColors array.
-    for (let i = 0; i < geometry.faces.length; i++) {
-        face = geometry.faces[i];
-        numberOfSides = face instanceof Geometry_1.Face3 ? 3 : 4;
-        for (let j = 0; j < numberOfSides; j++) {
-            vertexIndex = face[faceIndices[j]];
-            face.vertexColors[j] = geometry.colors[vertexIndex];
-        }
-    }
-    // @todo ¿Sacar el signo de pregunta y resolver el error?
-    (_a = wireMaterial.map) === null || _a === void 0 ? void 0 : _a.repeat.set(figures_constants_1.MATH_QUALITY, figures_constants_1.MATH_QUALITY);
-    return new THREE.Mesh(geometry, wireMaterial);
-}
-function MathFunctionFigure(axes, figure) {
-    const xRange = axes.x.max - axes.x.min;
-    const yRange = axes.y.max - axes.y.min;
-    const zFunc = figure.fn;
-    const meshFunction = function (x, y) {
-        x = xRange * x + axes.x.min;
-        y = yRange * y + axes.y.min;
-        const z = zFunc(x, y);
-        if (isNaN(z)) {
-            return new THREE.Vector3(0, 0, 0);
-        } // TODO: better fix
-        else {
-            return new THREE.Vector3(x, z, y);
-        }
-    };
-    const graphGeometry = new ParametricGeometry_1.ParametricGeometry(meshFunction, figures_constants_1.MATH_QUALITY, figures_constants_1.MATH_QUALITY);
-    const mesh = getMathMesh(graphGeometry);
-    return mesh;
-}
-exports.MathFunctionFigure = MathFunctionFigure;
-function MathParametricFigure(_axes, figure) {
-    const uRange = figure.u1 - figure.u0;
-    const vRange = figure.v1 - figure.v0;
-    const meshFunction = function (u, v) {
-        const _u = uRange * u + figure.u0;
-        const _v = vRange * v + figure.v0;
-        const x = figure.fn.x(_u, _v);
-        const y = figure.fn.y(_u, _v);
-        const z = figure.fn.z(_u, _v);
-        if (isNaN(x) || isNaN(y) || isNaN(z)) {
-            return new THREE.Vector3(0, 0, 0);
-        } // TODO: better fix
-        else {
-            return new THREE.Vector3(x, z, y);
-        }
-    };
-    const graphGeometry = new ParametricGeometry_1.ParametricGeometry(meshFunction, figures_constants_1.MATH_QUALITY, figures_constants_1.MATH_QUALITY);
-    graphGeometry.computeBoundingBox();
-    const mesh = getMathMesh(graphGeometry);
-    return mesh;
-}
-exports.MathParametricFigure = MathParametricFigure;
