@@ -1,7 +1,7 @@
 {
   "name": "matefun-graph3d",
   "version": "1.0.0",
-  "description": "",
+  "description": "Módulo de graficado 3D para el lenguaje de programación funcional MateFun",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "scripts": {
