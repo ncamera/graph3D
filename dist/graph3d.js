@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.reset = exports.changeOptions = exports.changeZoom = exports.changeZoomType = exports.changeSize = exports.showMetaData = exports.showVertices = exports.showEdges = exports.showAxes = exports.changeAxesSize = exports.drawMath = exports.clearSceneObjects = exports.changeSpeedAnimation = exports.pauseAnimation = exports.playAnimation = exports.initializeAnimation = exports.drawFigures = exports.initialize = void 0;
+exports.reset = exports.changeOptions = exports.changeZoom = exports.changeZoomType = exports.changeSize = exports.showMetaData = exports.showVertices = exports.showEdges = exports.showAxes = exports.changeAxesSize = exports.clearSceneObjects = exports.changeSpeedAnimation = exports.pauseAnimation = exports.playAnimation = exports.initializeAnimation = exports.drawFigures = exports.initialize = void 0;
 const Figures = require("./figures");
 const THREE = require("three");
 const axes_1 = require("./axes");
@@ -10,7 +10,7 @@ const three_1 = require("three");
 const utils_1 = require("./utils");
 const graph3d_utils_1 = require("./graph3d-utils");
 const figures_constants_1 = require("./figures-constants");
-const figures_1 = require("./figures");
+// import { MathFunctionFigure, MathParametricFigure } from "./figures";
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 const ZOOM_SPEED = 0.025;
 const ZOOM_TYPE = { ALL: 1, X: 2, Y: 3, Z: 4 };
@@ -193,20 +193,19 @@ function clearSceneObjects(stopAnimation = true) {
     _renderer.render(_scene, _camera);
 }
 exports.clearSceneObjects = clearSceneObjects;
-function drawMath(isParametric, figure) {
-    _props.requireUpdate = true;
-    _props.data = figure;
-    _props.updateCallback = function () {
-        const figureMesh = isParametric
-            ? (0, figures_1.MathParametricFigure)(_axes.scale, figure)
-            : (0, figures_1.MathFunctionFigure)(_axes.scale, _props.data);
-        clearSceneObjects();
-        _group.add(figureMesh);
-        _renderer.render(_scene, _camera);
-    };
-    _props.updateCallback();
-}
-exports.drawMath = drawMath;
+// export function drawMath(isParametric, figure) {
+//   _props.requireUpdate = true;
+//   _props.data = figure;
+//   _props.updateCallback = function () {
+//     const figureMesh = isParametric
+//       ? MathParametricFigure(_axes.scale, figure)
+//       : MathFunctionFigure(_axes.scale, _props.data);
+//     clearSceneObjects();
+//     _group.add(figureMesh);
+//     _renderer.render(_scene, _camera);
+//   };
+//   _props.updateCallback();
+// }
 function changeAxesSize(axes) {
     if (_initialized) {
         _axes.setScale(axes);

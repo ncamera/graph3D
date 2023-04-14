@@ -1,8 +1,7 @@
 import * as THREE from "three";
-import { BufferGeometry, Group, Mesh, MeshBasicMaterial } from "three";
-
-import { Face3 } from "../node_modules/three/examples/jsm/deprecated/Geometry";
-import { ParametricGeometry } from "../node_modules/three/examples/jsm/geometries/ParametricGeometry";
+// import { Face3 } from "../node_modules/three/examples/jsm/deprecated/Geometry";
+// import { ParametricGeometry } from "../node_modules/three/examples/jsm/geometries/ParametricGeometry";
+import { BufferGeometry, Group, Mesh } from "three";
 
 // Constants
 import {
@@ -10,8 +9,8 @@ import {
   DODECAHEDRON_VERTICES,
   ICOSACAHEDRON_VERTICES,
   LINE_BASIC_MATERIAL,
-  MATH_QUALITY,
-  MATH_WIREFRAME_B64,
+  // MATH_QUALITY,
+  // MATH_WIREFRAME_B64,
   MIN_QUALITY_TO_DISCRIMINATE_CIRCLE,
   OCTAHEDRON_VERTICES,
   TETRAHEDRON_VERTICES
@@ -193,13 +192,13 @@ const joinFigIn3DFigureEdgesDictionary = {
 };
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-const wireTexture = new THREE.TextureLoader().load(
-  MATH_WIREFRAME_B64,
-  function (texture) {
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(40, 40);
-  }
-);
+// const wireTexture = new THREE.TextureLoader().load(
+//   MATH_WIREFRAME_B64,
+//   function (texture) {
+//     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+//     texture.repeat.set(40, 40);
+//   }
+// );
 
 export const figureGeometryDictionary: {
   [key in Exclude<Figure3DKind, "line3D" | "joinFigIn3D" | "polygon">]: (
@@ -567,106 +566,106 @@ function LineFigure(figure: Line3D): Figure3DRender {
 // más reciente de ThreeJS seguir usando Geometry sin romper el código legado
 // https://stackoverflow.com/questions/67767491/why-i-cant-create-face3-in-threejs-typescript-project
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-function getMathMesh(geometry) {
-  const wireMaterial = new MeshBasicMaterial({
-    map: wireTexture,
-    vertexColors: true,
-    side: THREE.DoubleSide
-  });
+// function getMathMesh(geometry) {
+//   const wireMaterial = new MeshBasicMaterial({
+//     map: wireTexture,
+//     vertexColors: true,
+//     side: THREE.DoubleSide
+//   });
 
-  geometry.computeBoundingBox();
+//   geometry.computeBoundingBox();
 
-  const yMin = geometry.boundingBox.min.y;
-  const yMax = geometry.boundingBox.max.y;
-  const yRange = yMax - yMin;
-  let color, point, face, numberOfSides, vertexIndex;
+//   const yMin = geometry.boundingBox.min.y;
+//   const yMax = geometry.boundingBox.max.y;
+//   const yRange = yMax - yMin;
+//   let color, point, face, numberOfSides, vertexIndex;
 
-  // faces are indexed using characters
-  const faceIndices = ["a", "b", "c", "d"];
+//   // faces are indexed using characters
+//   const faceIndices = ["a", "b", "c", "d"];
 
-  // first, assign colors to vertices as desired
-  for (let i = 0; i < geometry.vertices.length; i++) {
-    point = geometry.vertices[i];
-    color = new THREE.Color(0xffffff);
-    color.setHSL((0.7 * (yMax - point.y)) / yRange, 1, 0.5);
-    geometry.colors[i] = color; // use this array for convenience
-  }
-  // copy the colors as necessary to the face's vertexColors array.
-  for (let i = 0; i < geometry.faces.length; i++) {
-    face = geometry.faces[i];
-    numberOfSides = face instanceof Face3 ? 3 : 4;
-    for (let j = 0; j < numberOfSides; j++) {
-      vertexIndex = face[faceIndices[j]];
-      face.vertexColors[j] = geometry.colors[vertexIndex];
-    }
-  }
-  // @todo ¿Sacar el signo de pregunta y resolver el error?
-  wireMaterial.map?.repeat.set(MATH_QUALITY, MATH_QUALITY);
+//   // first, assign colors to vertices as desired
+//   for (let i = 0; i < geometry.vertices.length; i++) {
+//     point = geometry.vertices[i];
+//     color = new THREE.Color(0xffffff);
+//     color.setHSL((0.7 * (yMax - point.y)) / yRange, 1, 0.5);
+//     geometry.colors[i] = color; // use this array for convenience
+//   }
+//   // copy the colors as necessary to the face's vertexColors array.
+//   for (let i = 0; i < geometry.faces.length; i++) {
+//     face = geometry.faces[i];
+//     numberOfSides = face instanceof Face3 ? 3 : 4;
+//     for (let j = 0; j < numberOfSides; j++) {
+//       vertexIndex = face[faceIndices[j]];
+//       face.vertexColors[j] = geometry.colors[vertexIndex];
+//     }
+//   }
+//   // @todo ¿Sacar el signo de pregunta y resolver el error?
+//   wireMaterial.map?.repeat.set(MATH_QUALITY, MATH_QUALITY);
 
-  return new THREE.Mesh(geometry, wireMaterial);
-}
+//   return new THREE.Mesh(geometry, wireMaterial);
+// }
 
-function MathFunctionFigure(axes, figure) {
-  const xRange = axes.x.max - axes.x.min;
-  const yRange = axes.y.max - axes.y.min;
+// function MathFunctionFigure(axes, figure) {
+//   const xRange = axes.x.max - axes.x.min;
+//   const yRange = axes.y.max - axes.y.min;
 
-  const zFunc = figure.fn;
+//   const zFunc = figure.fn;
 
-  const meshFunction = function (x, y) {
-    x = xRange * x + axes.x.min;
-    y = yRange * y + axes.y.min;
-    const z = zFunc(x, y);
-    if (isNaN(z)) {
-      return new THREE.Vector3(0, 0, 0);
-    } // TODO: better fix
-    else {
-      return new THREE.Vector3(x, z, y);
-    }
-  };
+//   const meshFunction = function (x, y) {
+//     x = xRange * x + axes.x.min;
+//     y = yRange * y + axes.y.min;
+//     const z = zFunc(x, y);
+//     if (isNaN(z)) {
+//       return new THREE.Vector3(0, 0, 0);
+//     } // TODO: better fix
+//     else {
+//       return new THREE.Vector3(x, z, y);
+//     }
+//   };
 
-  const graphGeometry = new ParametricGeometry(
-    meshFunction,
-    MATH_QUALITY,
-    MATH_QUALITY
-  );
+//   const graphGeometry = new ParametricGeometry(
+//     meshFunction,
+//     MATH_QUALITY,
+//     MATH_QUALITY
+//   );
 
-  const mesh = getMathMesh(graphGeometry);
+//   const mesh = getMathMesh(graphGeometry);
 
-  return mesh;
-}
+//   return mesh;
+// }
 
-function MathParametricFigure(_axes, figure) {
-  const uRange = figure.u1 - figure.u0;
-  const vRange = figure.v1 - figure.v0;
+// function MathParametricFigure(_axes, figure) {
+//   const uRange = figure.u1 - figure.u0;
+//   const vRange = figure.v1 - figure.v0;
 
-  const meshFunction = function (u, v) {
-    const _u = uRange * u + figure.u0;
-    const _v = vRange * v + figure.v0;
+//   const meshFunction = function (u, v) {
+//     const _u = uRange * u + figure.u0;
+//     const _v = vRange * v + figure.v0;
 
-    const x = figure.fn.x(_u, _v);
-    const y = figure.fn.y(_u, _v);
-    const z = figure.fn.z(_u, _v);
+//     const x = figure.fn.x(_u, _v);
+//     const y = figure.fn.y(_u, _v);
+//     const z = figure.fn.z(_u, _v);
 
-    if (isNaN(x) || isNaN(y) || isNaN(z)) {
-      return new THREE.Vector3(0, 0, 0);
-    } // TODO: better fix
-    else {
-      return new THREE.Vector3(x, z, y);
-    }
-  };
+//     if (isNaN(x) || isNaN(y) || isNaN(z)) {
+//       return new THREE.Vector3(0, 0, 0);
+//     } // TODO: better fix
+//     else {
+//       return new THREE.Vector3(x, z, y);
+//     }
+//   };
 
-  const graphGeometry = new ParametricGeometry(
-    meshFunction,
-    MATH_QUALITY,
-    MATH_QUALITY
-  );
+//   const graphGeometry = new ParametricGeometry(
+//     meshFunction,
+//     MATH_QUALITY,
+//     MATH_QUALITY
+//   );
 
-  graphGeometry.computeBoundingBox();
+//   graphGeometry.computeBoundingBox();
 
-  const mesh = getMathMesh(graphGeometry);
+//   const mesh = getMathMesh(graphGeometry);
 
-  return mesh;
-}
+//   return mesh;
+// }
 
 export {
   CubeFigure,
@@ -678,8 +677,8 @@ export {
   IcosahedronFigure,
   JoinFigIn3DFigure,
   LineFigure,
-  MathFunctionFigure,
-  MathParametricFigure,
+  // MathFunctionFigure,
+  // MathParametricFigure,
   OctahedronFigure,
   SphereFigure,
   TetrahedronFigure,
