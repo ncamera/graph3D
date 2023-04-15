@@ -242,19 +242,8 @@ function showEdges(visible) {
         showEdgesForEachRenderedFigure();
     }
     else {
-        // Se puede dar el caso en que se está renderizando una figura agrupada,
-        // esto sucede cuando se usa joinFigIn3D. Para ver si el Group
-        // correspondiente es el de las aristas, se chequea el primer elemento.
-        // De ser ese el caso, se borra todo el Group (ya que solo tiene aristas)
-        const predicateToRemove = object3D => {
-            var _a, _b;
-            return object3D.type === "LineSegments" ||
-                (object3D.type === "Group" &&
-                    (((_a = object3D.children[0]) === null || _a === void 0 ? void 0 : _a.type) === "LineSegments" ||
-                        ((_b = object3D.children[0]) === null || _b === void 0 ? void 0 : _b.type) === "Line"));
-        };
         /** Arreglo de objetos 3D que representan las aristas renderizadas */
-        const childrensToRemove = _group.children.filter(predicateToRemove);
+        const childrensToRemove = _group.children.filter(figures_constants_1.REMOVE_EDGES_PREDICATE);
         /* Si el anterior chequeo da problemas, se puede probar con la condición de filtrado:
             object3D instanceof
             THREE.LineSegments<
@@ -332,9 +321,6 @@ function showVertexForEachRenderedFigure() {
         if (figureVertex) {
             configureFigureInformationAndAddToTheScene(figure, figureVertex);
         }
-        // joinFigIn3D
-        // else if (figure.kind == "joinFigIn3D" && figure.f1.kind == "circle") {
-        //   figureRender = Figures.JoinFigIn3DFigure(figure, false);
     });
 }
 /**
@@ -359,13 +345,7 @@ function showMetaData(visible) {
         // El casteo a any[] se realiza porque TypeScript dice que los objetos 3D no
         // tiene material, pero depurando (haciendo console.log) se ve que algunos si tienen
         /** Arreglo de objetos 3D que representan la meta información renderizada */
-        const childrensToRemove = _group.children.filter(object3D => {
-            var _a;
-            return (object3D.material &&
-                object3D.material.type === "LineDashedMaterial") ||
-                (object3D.type === "Group" &&
-                    ((_a = object3D.children[0]) === null || _a === void 0 ? void 0 : _a.material.type) === "LineDashedMaterial");
-        });
+        const childrensToRemove = _group.children.filter(figures_constants_1.REMOVE_METADATA_PREDICATE);
         _group.remove(...childrensToRemove);
     }
     // Actualizar la escena
@@ -389,9 +369,6 @@ function showMetaDataForEachRenderedFigure() {
         if (figureMetaData) {
             configureFigureInformationAndAddToTheScene(figure, figureMetaData);
         }
-        // joinFigIn3D
-        // else if (figure.kind == "joinFigIn3D" && figure.f1.kind == "circle") {
-        //   figureRender = Figures.JoinFigIn3DFigure(figure, false);
     });
 }
 function changeSize(size) {

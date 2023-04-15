@@ -31,7 +31,11 @@ import {
   getFigureKey,
   createFigure3DVertex
 } from "./graph3d-utils";
-import { REMOVE_VERTEX_PREDICATE } from "./figures-constants";
+import {
+  REMOVE_EDGES_PREDICATE,
+  REMOVE_METADATA_PREDICATE,
+  REMOVE_VERTEX_PREDICATE
+} from "./figures-constants";
 // import { MathFunctionFigure, MathParametricFigure } from "./figures";
 
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
@@ -320,18 +324,8 @@ export function showEdges(visible: boolean) {
   if (visible) {
     showEdgesForEachRenderedFigure();
   } else {
-    // Se puede dar el caso en que se está renderizando una figura agrupada,
-    // esto sucede cuando se usa joinFigIn3D. Para ver si el Group
-    // correspondiente es el de las aristas, se chequea el primer elemento.
-    // De ser ese el caso, se borra todo el Group (ya que solo tiene aristas)
-    const predicateToRemove = object3D =>
-      object3D.type === "LineSegments" ||
-      (object3D.type === "Group" &&
-        (object3D.children[0]?.type === "LineSegments" ||
-          object3D.children[0]?.type === "Line"));
-
     /** Arreglo de objetos 3D que representan las aristas renderizadas */
-    const childrensToRemove = _group.children.filter(predicateToRemove);
+    const childrensToRemove = _group.children.filter(REMOVE_EDGES_PREDICATE);
 
     /* Si el anterior chequeo da problemas, se puede probar con la condición de filtrado:
         object3D instanceof
@@ -424,9 +418,6 @@ function showVertexForEachRenderedFigure() {
     if (figureVertex) {
       configureFigureInformationAndAddToTheScene(figure, figureVertex);
     }
-    // joinFigIn3D
-    // else if (figure.kind == "joinFigIn3D" && figure.f1.kind == "circle") {
-    //   figureRender = Figures.JoinFigIn3DFigure(figure, false);
   });
 }
 
@@ -455,11 +446,7 @@ export function showMetaData(visible: boolean) {
     // tiene material, pero depurando (haciendo console.log) se ve que algunos si tienen
     /** Arreglo de objetos 3D que representan la meta información renderizada */
     const childrensToRemove = (_group.children as any[]).filter(
-      object3D =>
-        (object3D.material &&
-          object3D.material.type === "LineDashedMaterial") ||
-        (object3D.type === "Group" &&
-          object3D.children[0]?.material.type === "LineDashedMaterial")
+      REMOVE_METADATA_PREDICATE
     );
 
     _group.remove(...childrensToRemove);
@@ -489,9 +476,6 @@ function showMetaDataForEachRenderedFigure() {
     if (figureMetaData) {
       configureFigureInformationAndAddToTheScene(figure, figureMetaData);
     }
-    // joinFigIn3D
-    // else if (figure.kind == "joinFigIn3D" && figure.f1.kind == "circle") {
-    //   figureRender = Figures.JoinFigIn3DFigure(figure, false);
   });
 }
 
