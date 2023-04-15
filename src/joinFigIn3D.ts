@@ -1,4 +1,3 @@
-import Delaunator from "delaunator";
 import {
   BufferAttribute,
   BufferGeometry,
@@ -20,6 +19,7 @@ import {
   Point3D,
   Polygon2D
 } from "./interfaces";
+import earcut from "earcut";
 import {
   createDashedLine,
   createEdgesForAGeometry,
@@ -42,7 +42,7 @@ const flattenPolygon = (polygon2D: Polygon2D): number[] => {
   const flattenedPolygon2D: number[] = [];
 
   // Se "aplana" la lista de entrada para que sea una lista simple, la cual es
-  // requerida por el Delaunator
+  // requerida por el earcut
   for (let index = 0; index < polygon2DLength; index++) {
     flattenedPolygon2D[index * 2] = polygon2D[index][0];
     flattenedPolygon2D[index * 2 + 1] = polygon2D[index][1];
@@ -64,7 +64,7 @@ const flattenPolygonIn3D = (polygon2D: Polygon2D, height: number): number[] => {
   const flattenedPolygon3D: number[] = [];
 
   // Se "aplana" la lista de entrada para que sea una lista simple, la cual es
-  // requerida por el Delaunator
+  // requerida por el earcut
   for (let index = 0; index < polygon2DLength; index++) {
     flattenedPolygon3D.push(polygon2D[index][0], polygon2D[index][1], height);
   }
@@ -84,8 +84,7 @@ export const triangulatePolygon = (
 ): Float32Array => {
   const facesOfPolygon2D: number[] = [];
 
-  const indicesOfFacesOfPolygon: Uint32Array = new Delaunator(polygon)
-    .triangles;
+  const indicesOfFacesOfPolygon: number[] = earcut(polygon, null, 2);
 
   indicesOfFacesOfPolygon.forEach(entry => {
     facesOfPolygon2D.push(polygon[entry * 2], polygon[entry * 2 + 1], height);

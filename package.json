@@ -1,5 +1,5 @@
 {
-  "name": "matefun-graph3d",
+  "name": "graph3D",
   "version": "1.0.0",
   "description": "Módulo de graficado 3D para el lenguaje de programación funcional MateFun",
   "main": "./dist/index.js",
@@ -13,22 +13,21 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@types/delaunator": "^5.0.0",
     "@types/node": "^18.7.20",
     "@types/three": "^0.140.0",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
-    "eslint": "^8.36.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-prettier": "^4.2.1",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-preset-es2015": "^6.24.1",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.7",
     "typescript": "^4.9.0"
   },
   "dependencies": {
-    "delaunator": "^5.0.0",
+    "earcut": "^2.2.4",
     "gif.js": "^0.2.0",
     "three": "^0.140.0"
   }

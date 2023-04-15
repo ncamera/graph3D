@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.joinPolygonsIn3DFigure = exports.joinPolygonsIn3DFigureMetaData = exports.joinPolygonsIn3DFigureVertex = exports.joinPolygonsIn3DFigureEdges = exports.triangulatePolygon = void 0;
-const delaunator_1 = require("delaunator");
 const three_1 = require("three");
+const earcut_1 = require("earcut");
 const utils_1 = require("./utils");
 // - - - - - - - - - - - - - Constantes - - - - - - - - - - - - -
 const LINE_BASIC_MATERIAL = new three_1.LineBasicMaterial({ color: 0x000000 });
@@ -18,7 +18,7 @@ const flattenPolygon = (polygon2D) => {
     const polygon2DLength = polygon2D.length;
     const flattenedPolygon2D = [];
     // Se "aplana" la lista de entrada para que sea una lista simple, la cual es
-    // requerida por el Delaunator
+    // requerida por el earcut
     for (let index = 0; index < polygon2DLength; index++) {
         flattenedPolygon2D[index * 2] = polygon2D[index][0];
         flattenedPolygon2D[index * 2 + 1] = polygon2D[index][1];
@@ -37,7 +37,7 @@ const flattenPolygonIn3D = (polygon2D, height) => {
     const polygon2DLength = polygon2D.length;
     const flattenedPolygon3D = [];
     // Se "aplana" la lista de entrada para que sea una lista simple, la cual es
-    // requerida por el Delaunator
+    // requerida por el earcut
     for (let index = 0; index < polygon2DLength; index++) {
         flattenedPolygon3D.push(polygon2D[index][0], polygon2D[index][1], height);
     }
@@ -51,8 +51,7 @@ const flattenPolygonIn3D = (polygon2D, height) => {
  */
 const triangulatePolygon = (polygon, height) => {
     const facesOfPolygon2D = [];
-    const indicesOfFacesOfPolygon = new delaunator_1.default(polygon)
-        .triangles;
+    const indicesOfFacesOfPolygon = (0, earcut_1.default)(polygon, null, 2);
     indicesOfFacesOfPolygon.forEach(entry => {
         facesOfPolygon2D.push(polygon[entry * 2], polygon[entry * 2 + 1], height);
     });
