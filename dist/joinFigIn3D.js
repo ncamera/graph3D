@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.joinPolygonsIn3DFigure = exports.joinPolygonsIn3DFigureMetaData = exports.joinPolygonsIn3DFigureVertex = exports.joinPolygonsIn3DFigureEdges = exports.triangulatePolygon = void 0;
-const three_1 = require("three");
-const earcut_1 = require("earcut");
-const utils_1 = require("./utils");
+import { BufferAttribute, BufferGeometry, Color, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshLambertMaterial, Vector3 } from "three";
+import earcut from "earcut";
+import { createDashedLine, createEdgesForAGeometry, createVertex } from "./utils";
 // - - - - - - - - - - - - - Constantes - - - - - - - - - - - - -
-const LINE_BASIC_MATERIAL = new three_1.LineBasicMaterial({ color: 0x000000 });
+const LINE_BASIC_MATERIAL = new LineBasicMaterial({ color: 0x000000 });
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 /**
  * Dado un poligono formado como un conjunto de duplas 2D (donde la dupla se
@@ -49,36 +46,35 @@ const flattenPolygonIn3D = (polygon2D, height) => {
  * @param height La altura z del poligono en el espacio 3D.
  * @returns La descomposición del poligono en triángulos
  */
-const triangulatePolygon = (polygon, height) => {
+export const triangulatePolygon = (polygon, height) => {
     const facesOfPolygon2D = [];
-    const indicesOfFacesOfPolygon = (0, earcut_1.default)(polygon, null, 2);
+    const indicesOfFacesOfPolygon = earcut(polygon, null, 2);
     indicesOfFacesOfPolygon.forEach(entry => {
         facesOfPolygon2D.push(polygon[entry * 2], polygon[entry * 2 + 1], height);
     });
     return new Float32Array(facesOfPolygon2D);
 };
-exports.triangulatePolygon = triangulatePolygon;
 /**
  * Dado un conjunto de puntos 3D, crea una linea simple (no punteada) que los une.
  * @param points Conjunto de puntos 3D
  */
 const createEdge = (points) => {
     const pointsLine = [];
-    pointsLine.push(new three_1.Vector3(points[0].x, points[0].y, points[0].z));
-    pointsLine.push(new three_1.Vector3(points[1].x, points[1].y, points[1].z));
-    const geometry = new three_1.BufferGeometry().setFromPoints(pointsLine);
-    return new three_1.Line(geometry, LINE_BASIC_MATERIAL);
+    pointsLine.push(new Vector3(points[0].x, points[0].y, points[0].z));
+    pointsLine.push(new Vector3(points[1].x, points[1].y, points[1].z));
+    const geometry = new BufferGeometry().setFromPoints(pointsLine);
+    return new Line(geometry, LINE_BASIC_MATERIAL);
 };
 const createPolygonGeometry = (triangles) => {
     const vertices = new Float32Array(triangles);
-    const figureGeometry = new three_1.BufferGeometry();
-    figureGeometry.setAttribute("position", new three_1.BufferAttribute(vertices, 3));
+    const figureGeometry = new BufferGeometry();
+    figureGeometry.setAttribute("position", new BufferAttribute(vertices, 3));
     figureGeometry.computeVertexNormals();
     return figureGeometry;
 };
 const createPolygon = (triangles, material) => {
     const figureGeometry = createPolygonGeometry(triangles);
-    return new three_1.Mesh(figureGeometry, material);
+    return new Mesh(figureGeometry, material);
 };
 const createEdgesForEachSideFace = (topPolygon, bottomPolygon, topPolygonHeight, bottomPolygonHeight, edgesGroup) => {
     const iterationLimit = topPolygon.length / 2 - 1;
@@ -112,7 +108,7 @@ const createEdgesForEachSideFace = (topPolygon, bottomPolygon, topPolygonHeight,
     edgesGroup.add(createEdge([topPoint, bottomPoint]));
 };
 const joinPolygonsIn3DFigureEdgesWithInformation = (flattenedTopPolygon, flattenedBottomPolygon, topPolygonHeight, bottomPolygonHeight, topTriangles, bottomTriangles, hasSideFaceEdges) => {
-    const edgesGroup = new three_1.Group();
+    const edgesGroup = new Group();
     if (hasSideFaceEdges) {
         createEdgesForEachSideFace(flattenedTopPolygon, flattenedBottomPolygon, topPolygonHeight, bottomPolygonHeight, edgesGroup);
     }
@@ -120,15 +116,15 @@ const joinPolygonsIn3DFigureEdgesWithInformation = (flattenedTopPolygon, flatten
     // sean solo un punto
     if (topTriangles) {
         const figureGeometry = createPolygonGeometry(topTriangles);
-        edgesGroup.add((0, utils_1.createEdgesForAGeometry)(figureGeometry));
+        edgesGroup.add(createEdgesForAGeometry(figureGeometry));
     }
     if (bottomTriangles) {
         const figureGeometry = createPolygonGeometry(bottomTriangles);
-        edgesGroup.add((0, utils_1.createEdgesForAGeometry)(figureGeometry));
+        edgesGroup.add(createEdgesForAGeometry(figureGeometry));
     }
     return edgesGroup;
 };
-const joinPolygonsIn3DFigureEdges = (figure, hasSideFaceEdges = true) => {
+export const joinPolygonsIn3DFigureEdges = (figure, hasSideFaceEdges = true) => {
     let topTriangles = undefined;
     let bottomTriangles = undefined;
     const halfHeight = figure.h / 2;
@@ -144,14 +140,13 @@ const joinPolygonsIn3DFigureEdges = (figure, hasSideFaceEdges = true) => {
     const shouldCreateBottomPolygon = !allPointsAreTheSame(figure.f2.pts[0], figure.f2.pts);
     // Se calcula la descomposición de los poligonos en triángulos
     if (shouldCreateTopPolygon) {
-        topTriangles = (0, exports.triangulatePolygon)(flattenedTopPolygon, halfHeight);
+        topTriangles = triangulatePolygon(flattenedTopPolygon, halfHeight);
     }
     if (shouldCreateBottomPolygon) {
-        bottomTriangles = (0, exports.triangulatePolygon)(flattenedBottomPolygon, -halfHeight);
+        bottomTriangles = triangulatePolygon(flattenedBottomPolygon, -halfHeight);
     }
     return joinPolygonsIn3DFigureEdgesWithInformation(flattenedTopPolygon, flattenedBottomPolygon, halfHeight, -halfHeight, topTriangles, bottomTriangles, hasSideFaceEdges);
 };
-exports.joinPolygonsIn3DFigureEdges = joinPolygonsIn3DFigureEdges;
 /**
  * Crea los vertices para los poligonos dados. Si alguno de los poligonos no
  * tiene vértices distintos, se optimiza la creación de los vértices, creando
@@ -173,14 +168,14 @@ const joinPolygonsIn3DFigureVertexWithInformation = (flattenedTopPolygon, flatte
             flattenedBottomPolygon[1],
             flattenedBottomPolygon[2]
         ];
-    const topPolygon = (0, utils_1.createVertex)(topPolygonVertex, quality);
-    const bottomPolygon = (0, utils_1.createVertex)(bottomPolygonVertex, quality);
-    const figureVertex = new three_1.Group();
+    const topPolygon = createVertex(topPolygonVertex, quality);
+    const bottomPolygon = createVertex(bottomPolygonVertex, quality);
+    const figureVertex = new Group();
     figureVertex.add(topPolygon);
     figureVertex.add(bottomPolygon);
     return figureVertex;
 };
-const joinPolygonsIn3DFigureVertex = (figure, quality) => {
+export const joinPolygonsIn3DFigureVertex = (figure, quality) => {
     const halfHeight = figure.h / 2;
     const flattenedTopPolygon3D = flattenPolygonIn3D(figure.f1.pts, halfHeight);
     const flattenedBottomPolygon3D = flattenPolygonIn3D(figure.f2.pts, -halfHeight);
@@ -193,20 +188,19 @@ const joinPolygonsIn3DFigureVertex = (figure, quality) => {
     const shouldCreateBottomPolygon = !allPointsAreTheSame(figure.f2.pts[0], figure.f2.pts);
     return joinPolygonsIn3DFigureVertexWithInformation(flattenedTopPolygon3D, flattenedBottomPolygon3D, shouldCreateTopPolygon, shouldCreateBottomPolygon, quality);
 };
-exports.joinPolygonsIn3DFigureVertex = joinPolygonsIn3DFigureVertex;
-const joinPolygonsIn3DFigureMetaData = (figure) => {
-    const metaDataGroup = new three_1.Group();
+export const joinPolygonsIn3DFigureMetaData = (figure) => {
+    const metaDataGroup = new Group();
     const halfHeight = figure.h / 2;
     /**
      * Linea punteada para la altura del cilindro
      */
-    const heightLine = (0, utils_1.createDashedLine)([
+    const heightLine = createDashedLine([
         { x: figure.f2.x, y: figure.f2.y, z: -halfHeight },
         { x: figure.f1.x, y: figure.f1.y, z: halfHeight }
     ]);
     metaDataGroup.add(heightLine);
     if (figure.f2.r !== 0) {
-        const bottomLine = (0, utils_1.createDashedLine)([
+        const bottomLine = createDashedLine([
             { x: figure.f2.x, y: figure.f2.y, z: -halfHeight },
             { x: figure.f2.x + figure.f2.r, y: figure.f2.y, z: -halfHeight }
         ]);
@@ -214,7 +208,7 @@ const joinPolygonsIn3DFigureMetaData = (figure) => {
     }
     // Si los radios no son iguales, se agrega la linea punteada para el radio top
     if (figure.f1.r !== 0 && figure.f1.r !== figure.f2.r) {
-        const topLine = (0, utils_1.createDashedLine)([
+        const topLine = createDashedLine([
             { x: figure.f1.x, y: figure.f1.y, z: halfHeight },
             { x: figure.f1.x + figure.f1.r, y: figure.f1.y, z: halfHeight }
         ]);
@@ -222,7 +216,6 @@ const joinPolygonsIn3DFigureMetaData = (figure) => {
     }
     return metaDataGroup;
 };
-exports.joinPolygonsIn3DFigureMetaData = joinPolygonsIn3DFigureMetaData;
 /**
  * Dados de poligonos 3D (sus dimensiones están en el espacio 3D), completa los
  * poligonos con caras (laterales) y aristas.
@@ -297,8 +290,8 @@ const complete3DFigureWithFaces = (topPolygon, bottomPolygon, topPolygonHeight, 
     figuresGroup.add(createPolygon(triangles, material));
 };
 const allPointsAreTheSame = (firstPoint, polygon2D) => polygon2D.every(point => point[0] === firstPoint[0] && point[1] === firstPoint[1]);
-const joinPolygonsIn3DFigure = (figure, edgesVisibility, vertexVisibility, metaDataVisibility, quality, hasSideFaceEdges) => {
-    const figuresGroup = new three_1.Group();
+export const joinPolygonsIn3DFigure = (figure, edgesVisibility, vertexVisibility, metaDataVisibility, quality, hasSideFaceEdges) => {
+    const figuresGroup = new Group();
     let topTriangles = undefined;
     let bottomTriangles = undefined;
     let edges = undefined;
@@ -306,11 +299,11 @@ const joinPolygonsIn3DFigure = (figure, edgesVisibility, vertexVisibility, metaD
     let metaData = undefined;
     const color = figure.color !== "white" ? figure.color : figure.f1.color;
     const opacity = 1 - figure.transparency;
-    const material = new three_1.MeshLambertMaterial({
-        color: new three_1.Color(color),
+    const material = new MeshLambertMaterial({
+        color: new Color(color),
         transparent: true,
         opacity: opacity,
-        side: three_1.DoubleSide
+        side: DoubleSide
     });
     // Se "aplanan" los poligonos
     const flattenedTopPolygon = flattenPolygon(figure.f1.pts);
@@ -330,13 +323,13 @@ const joinPolygonsIn3DFigure = (figure, edgesVisibility, vertexVisibility, metaD
     const halfHeight = figure.h / 2;
     if (shouldCreateTopPolygon) {
         // Se calcula la descomposición de los poligonos en triángulos
-        topTriangles = (0, exports.triangulatePolygon)(flattenedTopPolygon, halfHeight);
+        topTriangles = triangulatePolygon(flattenedTopPolygon, halfHeight);
         // Se crean los poligonos
         figuresGroup.add(createPolygon(topTriangles, material));
     }
     if (shouldCreateBottomPolygon) {
         // Se calcula la descomposición de los poligonos en triángulos
-        bottomTriangles = (0, exports.triangulatePolygon)(flattenedBottomPolygon, -halfHeight);
+        bottomTriangles = triangulatePolygon(flattenedBottomPolygon, -halfHeight);
         // Se crean los poligonos
         figuresGroup.add(createPolygon(bottomTriangles, material));
     }
@@ -356,8 +349,7 @@ const joinPolygonsIn3DFigure = (figure, edgesVisibility, vertexVisibility, metaD
     const isObliqueCylinder = figure.f1.kind === "circle" &&
         (figure.f1.x !== figure.f2.x || figure.f1.y !== figure.f2.y);
     if (metaDataVisibility && isObliqueCylinder) {
-        metaData = (0, exports.joinPolygonsIn3DFigureMetaData)(figure);
+        metaData = joinPolygonsIn3DFigureMetaData(figure);
     }
     return { figure: figuresGroup, edges, vertex, metaData };
 };
-exports.joinPolygonsIn3DFigure = joinPolygonsIn3DFigure;

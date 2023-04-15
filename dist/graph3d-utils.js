@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createFigure3DVertex = exports.createFigure3DMetaData = exports.createFigure3DEdges = exports.createFigure3D = exports.getFigureKey = void 0;
-const Figures = require("./figures");
-const figures_1 = require("./figures");
+import * as Figures from "./figures";
+import { createFigureEdges, createFigureMetaData, createFigureVertex, figureGeometryDictionary } from "./figures";
 // Helpers
 const figureKeyDictionary = {
     // Se usa para obtener un identificador de la figura 2D
@@ -43,8 +40,7 @@ const figureKeyDictionary = {
  * | `"md"`  | MetaData    |
  * | `"vtx"` | Vertex      |
  */
-const getFigureKey = (figure, type) => `${type}-${figureKeyDictionary[figure.kind](figure)}`;
-exports.getFigureKey = getFigureKey;
+export const getFigureKey = (figure, type) => `${type}-${figureKeyDictionary[figure.kind](figure)}`;
 /**
  * Dictionario de funciones. Sirve para mapear nombre de funciones a renders de
  * las mismas.
@@ -68,13 +64,9 @@ const figureDictionary = {
  * @param figure JSON de la figura que se quiere dibujar
  * @returns El render de la figura `figure`
  */
-const createFigure3D = (figure) => figureDictionary[figure.kind](figure);
-exports.createFigure3D = createFigure3D;
-const createFigure3DEdges = (figure) => figure.kind === "cylinder" || figure.kind === "joinFigIn3D"
-    ? (0, figures_1.createFigureEdges)(figure)
-    : (0, figures_1.createFigureEdges)(figure, figures_1.figureGeometryDictionary[figure.kind](figure));
-exports.createFigure3DEdges = createFigure3DEdges;
-const createFigure3DMetaData = (figure) => (0, figures_1.createFigureMetaData)(figure);
-exports.createFigure3DMetaData = createFigure3DMetaData;
-const createFigure3DVertex = (figure) => (0, figures_1.createFigureVertex)(figure);
-exports.createFigure3DVertex = createFigure3DVertex;
+export const createFigure3D = (figure) => figureDictionary[figure.kind](figure);
+export const createFigure3DEdges = (figure) => figure.kind === "cylinder" || figure.kind === "joinFigIn3D"
+    ? createFigureEdges(figure)
+    : createFigureEdges(figure, figureGeometryDictionary[figure.kind](figure));
+export const createFigure3DMetaData = (figure) => createFigureMetaData(figure);
+export const createFigure3DVertex = (figure) => createFigureVertex(figure);

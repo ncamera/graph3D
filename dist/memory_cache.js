@@ -1,5 +1,4 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const DEFAULT_SIZE = 50;
 const DEFAULT_EXPIRE_TIME_MS = 10000;
 /**
@@ -85,4 +84,4 @@ MemoryCache.prototype.clear = function () {
     this._freeSpace = this._size;
     this._timeouts = Object.create(null);
 };
-exports.default = MemoryCache;
+export default MemoryCache;
