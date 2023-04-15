@@ -1,6 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const THREE = require("three");
+import * as THREE from "three";
 // - - - - - - - - - - - - - Constantes - - - - - - - - - - - - -
 const AXE_LABEL_PADDING = 0.5;
 const AXE_TICK_PADDING = 0.3;
@@ -119,4 +117,4 @@ function linspace(a, b, n) {
     }
     return ret;
 }
-exports.default = Axes;
+export default Axes;

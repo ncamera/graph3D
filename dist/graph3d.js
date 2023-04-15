@@ -1,15 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.reset = exports.changeOptions = exports.changeZoom = exports.changeZoomType = exports.changeSize = exports.showMetaData = exports.showVertices = exports.showEdges = exports.showAxes = exports.changeAxesSize = exports.clearSceneObjects = exports.changeSpeedAnimation = exports.pauseAnimation = exports.playAnimation = exports.initializeAnimation = exports.drawFigures = exports.initialize = void 0;
-const Figures = require("./figures");
+import * as Figures from "./figures";
 const THREE = require("three");
-const axes_1 = require("./axes");
-const memory_cache_1 = require("./memory_cache");
-const orbit_controls_1 = require("./orbit_controls");
-const three_1 = require("three");
-const utils_1 = require("./utils");
-const graph3d_utils_1 = require("./graph3d-utils");
-const figures_constants_1 = require("./figures-constants");
+import Axes from "./axes";
+import MemoryCache from "./memory_cache";
+import OrbitControls from "./orbit_controls";
+import { Scene } from "three";
+import { degreesToRadian } from "./utils";
+import { createFigure3DEdges, createFigure3D, createFigure3DMetaData, getFigureKey, createFigure3DVertex } from "./graph3d-utils";
+import { REMOVE_EDGES_PREDICATE, REMOVE_METADATA_PREDICATE, REMOVE_VERTEX_PREDICATE } from "./figures-constants";
 // import { MathFunctionFigure, MathParametricFigure } from "./figures";
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 const ZOOM_SPEED = 0.025;
@@ -67,10 +64,10 @@ let _initialized = false;
 /**
  * @param  {string} domElem dom node name, where canvas will put it
  */
-function initialize(domElem) {
+export function initialize(domElem) {
     const width = domElem.getBoundingClientRect().width || 50;
     const height = domElem.getBoundingClientRect().height || 50;
-    _scene = new three_1.Scene();
+    _scene = new Scene();
     _camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
     _renderer = new THREE.WebGLRenderer({ antialias: true });
     _renderer.setSize(width, height);
@@ -82,13 +79,13 @@ function initialize(domElem) {
     _scene.add(_camera);
     _camera.add(_light);
     _camera.position.set(5, 5, 25);
-    _controls = new orbit_controls_1.default(_camera, _renderer.domElement);
+    _controls = new OrbitControls(_camera, _renderer.domElement);
     _controls.addEventListener("change", function () {
         // _light.position.copy(_camera.getWorldPosition());
         _renderer.render(_scene, _camera);
     });
     _renderer.domElement.addEventListener("wheel", onMouseWheel, false);
-    _axes = new axes_1.default();
+    _axes = new Axes();
     _axes.setScale({
         xMin: DEFAULT_AXES_WIDTH.min,
         xMax: DEFAULT_AXES_WIDTH.max,
@@ -104,21 +101,19 @@ function initialize(domElem) {
     _renderer.render(_scene, _camera);
     _initialized = true;
 }
-exports.initialize = initialize;
 /**
  * @param figures Un array de las figuras 3D, representadas como JSONs
  */
-function drawFigures(figures) {
+export function drawFigures(figures) {
     clearSceneObjects();
     figures.forEach(function (figure) {
-        const figureRender = (0, graph3d_utils_1.createFigure3D)(figure);
+        const figureRender = createFigure3D(figure);
         setFigurePropertiesAndAddToScene(figure, figureRender);
     });
     _props.requireUpdate = false;
     _props.data = figures;
     _renderer.render(_scene, _camera);
 }
-exports.drawFigures = drawFigures;
 function setFigurePropertiesAndAddToScene(figure, figureRender) {
     configureFigureAndAddToGroup(figure, figureRender.figure);
     if (configuration.edgesVisibility && figureRender.edges) {
@@ -150,38 +145,34 @@ function configureFigureAndAddToGroup(figure, figureMesh) {
  * @param data Arreglo de figuras
  * @param {function} cbProgress callback function, will be called for notification progress change
  */
-function initializeAnimation(data, cbProgress) {
+export function initializeAnimation(data, cbProgress) {
     _props.dataAnimation = data;
     _props.requireUpdate = false;
     _animation.key = 0;
     _animation.callbackProgress = cbProgress;
-    _cache = new memory_cache_1.default(750, 50 * 1000);
+    _cache = new MemoryCache(750, 50 * 1000);
 }
-exports.initializeAnimation = initializeAnimation;
-function playAnimation() {
+export function playAnimation() {
     if (_initialized) {
         _animation.running = true;
         animate();
     }
 }
-exports.playAnimation = playAnimation;
-function pauseAnimation() {
+export function pauseAnimation() {
     if (_initialized) {
         _animation.running = false;
         clearTimeout(_animation.timeoutRef);
     }
 }
-exports.pauseAnimation = pauseAnimation;
 /**
  * Cambia la frecuencia con la cual se actualizan las figuras en la animación
  * de este estilo `[esfera(3), esfera(5), anillo(3, 5, 1)]`
  * @param delay Retraso con el cual se cambia entre figuras de una animación
  */
-function changeSpeedAnimation(delay) {
+export function changeSpeedAnimation(delay) {
     _animation.delay = delay;
 }
-exports.changeSpeedAnimation = changeSpeedAnimation;
-function clearSceneObjects(stopAnimation = true) {
+export function clearSceneObjects(stopAnimation = true) {
     if (stopAnimation) {
         clearTimeout(_animation.timeoutRef);
         // Se reinicia el arreglo de animaciones, ya que no se están renderizando animaciones
@@ -192,7 +183,6 @@ function clearSceneObjects(stopAnimation = true) {
     _props.data = [];
     _renderer.render(_scene, _camera);
 }
-exports.clearSceneObjects = clearSceneObjects;
 // export function drawMath(isParametric, figure) {
 //   _props.requireUpdate = true;
 //   _props.data = figure;
@@ -206,7 +196,7 @@ exports.clearSceneObjects = clearSceneObjects;
 //   };
 //   _props.updateCallback();
 // }
-function changeAxesSize(axes) {
+export function changeAxesSize(axes) {
     if (_initialized) {
         _axes.setScale(axes);
         if (_props.requireUpdate) {
@@ -215,21 +205,19 @@ function changeAxesSize(axes) {
         _renderer.render(_scene, _camera);
     }
 }
-exports.changeAxesSize = changeAxesSize;
-function showAxes(visible) {
+export function showAxes(visible) {
     if (_initialized) {
         _axes.group.visible = visible;
         _renderer.render(_scene, _camera);
     }
 }
-exports.showAxes = showAxes;
 /**
  * Muestra o oculta las aristras de las figuras actualmente renderizadas.
  * @param visible Determina si los aristas serán visibles o ocultadas.
  *
  * @todo TODO: Completar la implementación
  */
-function showEdges(visible) {
+export function showEdges(visible) {
     // Si no se ha inicializado, no se hace nada
     if (!_initialized) {
         return;
@@ -242,19 +230,8 @@ function showEdges(visible) {
         showEdgesForEachRenderedFigure();
     }
     else {
-        // Se puede dar el caso en que se está renderizando una figura agrupada,
-        // esto sucede cuando se usa joinFigIn3D. Para ver si el Group
-        // correspondiente es el de las aristas, se chequea el primer elemento.
-        // De ser ese el caso, se borra todo el Group (ya que solo tiene aristas)
-        const predicateToRemove = object3D => {
-            var _a, _b;
-            return object3D.type === "LineSegments" ||
-                (object3D.type === "Group" &&
-                    (((_a = object3D.children[0]) === null || _a === void 0 ? void 0 : _a.type) === "LineSegments" ||
-                        ((_b = object3D.children[0]) === null || _b === void 0 ? void 0 : _b.type) === "Line"));
-        };
         /** Arreglo de objetos 3D que representan las aristas renderizadas */
-        const childrensToRemove = _group.children.filter(predicateToRemove);
+        const childrensToRemove = _group.children.filter(REMOVE_EDGES_PREDICATE);
         /* Si el anterior chequeo da problemas, se puede probar con la condición de filtrado:
             object3D instanceof
             THREE.LineSegments<
@@ -267,7 +244,6 @@ function showEdges(visible) {
     // Actualizar la escena
     _renderer.render(_scene, _camera);
 }
-exports.showEdges = showEdges;
 /**
  * Dependiendo de si se está renderizando una secuencia de figuras 3D o solo
  * una figura 3D, muestra las aristas de las figuras actualmente renderizadas.
@@ -281,7 +257,7 @@ function showEdgesForEachRenderedFigure() {
     }
     // Las figuras no son de una secuencia
     _props.data.forEach(figure => {
-        const figureEdges = (0, graph3d_utils_1.createFigure3DEdges)(figure);
+        const figureEdges = createFigure3DEdges(figure);
         if (figureEdges) {
             configureFigureInformationAndAddToTheScene(figure, figureEdges);
         }
@@ -293,7 +269,7 @@ function showEdgesForEachRenderedFigure() {
  *
  * @todo TODO: Completar la implementación
  */
-function showVertices(visible) {
+export function showVertices(visible) {
     // Si no se ha inicializado, no se hace nada
     if (!_initialized) {
         return;
@@ -309,13 +285,12 @@ function showVertices(visible) {
         // El casteo a any[] se realiza porque TypeScript dice que los objetos 3D no
         // tiene material, pero depurando (haciendo console.log) se ve que algunos si tienen
         /** Arreglo de objetos 3D que representan los vértices renderizados */
-        const childrensToRemove = _group.children.filter(figures_constants_1.REMOVE_VERTEX_PREDICATE);
+        const childrensToRemove = _group.children.filter(REMOVE_VERTEX_PREDICATE);
         _group.remove(...childrensToRemove);
     }
     // Actualizar la escena
     _renderer.render(_scene, _camera);
 }
-exports.showVertices = showVertices;
 /**
  * Dependiendo de si se está renderizando una secuencia de figuras 3D o solo
  * una figura 3D, muestra los vértices de las figuras actualmente renderizados.
@@ -328,13 +303,10 @@ function showVertexForEachRenderedFigure() {
         return;
     }
     _props.data.forEach(figure => {
-        const figureVertex = (0, graph3d_utils_1.createFigure3DVertex)(figure);
+        const figureVertex = createFigure3DVertex(figure);
         if (figureVertex) {
             configureFigureInformationAndAddToTheScene(figure, figureVertex);
         }
-        // joinFigIn3D
-        // else if (figure.kind == "joinFigIn3D" && figure.f1.kind == "circle") {
-        //   figureRender = Figures.JoinFigIn3DFigure(figure, false);
     });
 }
 /**
@@ -343,7 +315,7 @@ function showVertexForEachRenderedFigure() {
  *
  * @todo TODO: Completar la implementación
  */
-function showMetaData(visible) {
+export function showMetaData(visible) {
     // Si no se ha inicializado, no se hace nada
     if (!_initialized) {
         return;
@@ -359,19 +331,12 @@ function showMetaData(visible) {
         // El casteo a any[] se realiza porque TypeScript dice que los objetos 3D no
         // tiene material, pero depurando (haciendo console.log) se ve que algunos si tienen
         /** Arreglo de objetos 3D que representan la meta información renderizada */
-        const childrensToRemove = _group.children.filter(object3D => {
-            var _a;
-            return (object3D.material &&
-                object3D.material.type === "LineDashedMaterial") ||
-                (object3D.type === "Group" &&
-                    ((_a = object3D.children[0]) === null || _a === void 0 ? void 0 : _a.material.type) === "LineDashedMaterial");
-        });
+        const childrensToRemove = _group.children.filter(REMOVE_METADATA_PREDICATE);
         _group.remove(...childrensToRemove);
     }
     // Actualizar la escena
     _renderer.render(_scene, _camera);
 }
-exports.showMetaData = showMetaData;
 /**
  * Dependiendo de si se está renderizando una secuencia de figuras 3D o solo
  * una figura 3D, muestra la meta informacion de las figuras actualmente
@@ -385,16 +350,13 @@ function showMetaDataForEachRenderedFigure() {
         return;
     }
     _props.data.forEach(figure => {
-        const figureMetaData = (0, graph3d_utils_1.createFigure3DMetaData)(figure);
+        const figureMetaData = createFigure3DMetaData(figure);
         if (figureMetaData) {
             configureFigureInformationAndAddToTheScene(figure, figureMetaData);
         }
-        // joinFigIn3D
-        // else if (figure.kind == "joinFigIn3D" && figure.f1.kind == "circle") {
-        //   figureRender = Figures.JoinFigIn3DFigure(figure, false);
     });
 }
-function changeSize(size) {
+export function changeSize(size) {
     const newAspect = size.width / size.height;
     if (_camera.aspect !== newAspect ||
         _renderer.getSize().width !== size.width ||
@@ -405,8 +367,7 @@ function changeSize(size) {
         _renderer.render(_scene, _camera);
     }
 }
-exports.changeSize = changeSize;
-function changeZoomType(type) {
+export function changeZoomType(type) {
     _props.zoom.type = type;
     if (_props.zoom.type === ZOOM_TYPE.ALL) {
         _controls.enableZoom = true;
@@ -415,8 +376,7 @@ function changeZoomType(type) {
         _controls.enableZoom = false;
     }
 }
-exports.changeZoomType = changeZoomType;
-function changeZoom(increase = true) {
+export function changeZoom(increase = true) {
     if (_initialized) {
         const zoomEvent = new Event("wheel");
         if (increase) {
@@ -428,12 +388,11 @@ function changeZoom(increase = true) {
         _renderer.domElement.dispatchEvent(zoomEvent);
     }
 }
-exports.changeZoom = changeZoom;
 /**
  * Actualiza la configuración de la calidad de las figuras
  * @param options Configuración del graficador 3D
  */
-function changeOptions(options) {
+export function changeOptions(options) {
     for (const property in options) {
         if (configuration.hasOwnProperty(property)) {
             configuration[property] = options[property];
@@ -441,12 +400,11 @@ function changeOptions(options) {
     }
     Figures.updateQuality(configuration.quality);
 }
-exports.changeOptions = changeOptions;
 /**
  * Reinicia el zoom, centrando la cámara en la posición por defecto.
  * Se mapea directamente con la función "Centrar" del Front-End
  */
-function reset() {
+export function reset() {
     _props.zoom.x = 1;
     _props.zoom.y = 1;
     _props.zoom.z = 1;
@@ -458,7 +416,6 @@ function reset() {
     _controls.reset();
     _renderer.render(_scene, _camera);
 }
-exports.reset = reset;
 /**
  * Se utiliza para crear una secuencia de figuras las cuales son cambiadas
  * a intervalos de tiempo. Dichos intervalos de tiempo están determinados
@@ -488,48 +445,48 @@ const animate = () => {
     _renderer.render(_scene, _camera);
 };
 function renderFigureWithCache(figure, type) {
-    const figureKey = (0, graph3d_utils_1.getFigureKey)(figure, type);
+    const figureKey = getFigureKey(figure, type);
     const cachedFigureMesh = _cache.get(figureKey);
     let figureMesh;
     // Si no está cacheada la figura, dibuja la figura y agrega el mapeado a la
     // caché
     if (!cachedFigureMesh) {
         if (type === "fig") {
-            figureMesh = (0, graph3d_utils_1.createFigure3D)(figure);
+            figureMesh = createFigure3D(figure);
             _cache.set(figureKey, figureMesh.figure);
             if (figureMesh.edges) {
-                const edgesKey = (0, graph3d_utils_1.getFigureKey)(figure, "ed");
+                const edgesKey = getFigureKey(figure, "ed");
                 cachedUsed[edgesKey] = true;
                 _cache.set(edgesKey, figureMesh.edges);
             }
             if (figureMesh.metaData) {
-                const metaDataKey = (0, graph3d_utils_1.getFigureKey)(figure, "md");
+                const metaDataKey = getFigureKey(figure, "md");
                 cachedUsed[metaDataKey] = true;
                 _cache.set(metaDataKey, figureMesh.metaData);
             }
             if (figureMesh.vertex) {
-                const vertexKey = (0, graph3d_utils_1.getFigureKey)(figure, "vtx");
+                const vertexKey = getFigureKey(figure, "vtx");
                 cachedUsed[vertexKey] = true;
                 _cache.set(vertexKey, figureMesh.vertex);
             }
         }
         // Edges
         else if (type === "ed") {
-            figureMesh = (0, graph3d_utils_1.createFigure3DEdges)(figure);
+            figureMesh = createFigure3DEdges(figure);
             if (figureMesh) {
                 _cache.set(figureKey, figureMesh);
             }
         }
         // MetaData
         else if (type === "md") {
-            figureMesh = (0, graph3d_utils_1.createFigure3DMetaData)(figure);
+            figureMesh = createFigure3DMetaData(figure);
             if (figureMesh) {
                 _cache.set(figureKey, figureMesh);
             }
         }
         // Vertex
         else {
-            figureMesh = (0, graph3d_utils_1.createFigure3DVertex)(figure);
+            figureMesh = createFigure3DVertex(figure);
             if (figureMesh) {
                 _cache.set(figureKey, figureMesh);
             }
@@ -651,7 +608,7 @@ const setFigureRotation = (figure, mesh) => {
                     figure.f1.y !== figure.f2.y)))
         ? figure.rot.y - 90
         : figure.rot.y;
-    mesh.rotation.set((0, utils_1.degreesToRadian)(yRotation), (0, utils_1.degreesToRadian)(figure.rot.z), (0, utils_1.degreesToRadian)(figure.rot.x));
+    mesh.rotation.set(degreesToRadian(yRotation), degreesToRadian(figure.rot.z), degreesToRadian(figure.rot.x));
 };
 const setFigurePosition = (figure, mesh) => {
     mesh.position.set(figure.y, figure.z, figure.x);

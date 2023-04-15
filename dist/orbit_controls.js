@@ -1,5 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 const THREE = require("three");
 /**
  * @author qiao / https://github.com/qiao
@@ -680,4 +678,4 @@ Object.defineProperties(OrbitControls.prototype, {
         }
     }
 });
-exports.default = OrbitControls;
+export default OrbitControls;

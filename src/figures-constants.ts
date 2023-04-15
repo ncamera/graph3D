@@ -174,7 +174,21 @@ export const VERTEX_CONFIGURATION = new MeshLambertMaterial({
   transparent: true
 });
 
+// Se puede dar el caso en que se está renderizando una figura agrupada, esto
+// sucede cuando se usa joinFigIn3D. Para ver si el Group correspondiente es
+// el de las aristas, se chequea el material del primer elemento.
+// De ser ese el caso, se borra todo el Group (ya que solo tiene aristas)
+export const REMOVE_EDGES_PREDICATE = object3D =>
+  object3D.type === "LineSegments" ||
+  (object3D.type === "Group" &&
+    object3D.children[0]?.material?.type === "LineBasicMaterial");
+
 export const REMOVE_VERTEX_PREDICATE = object3D =>
   object3D.type === "Group" &&
   (object3D.children[0]?.geometry?.type === "SphereGeometry" ||
     object3D.children[0]?.children[0]?.geometry?.type === "SphereGeometry");
+
+export const REMOVE_METADATA_PREDICATE = object3D =>
+  object3D.material?.type === "LineDashedMaterial" ||
+  (object3D.type === "Group" &&
+    object3D.children[0]?.material?.type === "LineDashedMaterial");
