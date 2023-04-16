@@ -5,7 +5,6 @@ import {
   DoubleSide,
   Group,
   Line,
-  LineBasicMaterial,
   Mesh,
   MeshLambertMaterial,
   Vector3
@@ -25,10 +24,7 @@ import {
   createEdgesForAGeometry,
   createVertex
 } from "./utils";
-
-// - - - - - - - - - - - - - Constantes - - - - - - - - - - - - -
-const LINE_BASIC_MATERIAL = new LineBasicMaterial({ color: 0x000000 });
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import { LINE_BASIC_MATERIAL } from "./figures-constants";
 
 /**
  * Dado un poligono formado como un conjunto de duplas 2D (donde la dupla se
@@ -120,11 +116,7 @@ const createPolygonGeometry = (triangles: Float32Array): BufferGeometry => {
 const createPolygon = (
   triangles: Float32Array,
   material: MeshLambertMaterial
-) => {
-  const figureGeometry = createPolygonGeometry(triangles);
-
-  return new Mesh(figureGeometry, material);
-};
+) => new Mesh(createPolygonGeometry(triangles), material);
 
 const createEdgesForEachSideFace = (
   topPolygon: number[],

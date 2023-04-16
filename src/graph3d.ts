@@ -1,6 +1,3 @@
-import * as Figures from "./figures";
-const THREE = require("three");
-
 import Axes from "./axes";
 import MemoryCache from "./memory_cache";
 import OrbitControls from "./orbit_controls";
@@ -21,7 +18,9 @@ import {
   WebGLRenderer,
   PointLight,
   PerspectiveCamera,
-  Scene
+  Scene,
+  Line,
+  Mesh
 } from "three";
 import { degreesToRadian } from "./utils";
 import {
@@ -36,6 +35,12 @@ import {
   REMOVE_METADATA_PREDICATE,
   REMOVE_VERTEX_PREDICATE
 } from "./figures-constants";
+import {
+  updateEdgesVisibility,
+  updateMetaDataVisibility,
+  updateQuality,
+  updateVertexVisibility
+} from "./figures";
 // import { MathFunctionFigure, MathParametricFigure } from "./figures";
 
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
@@ -109,9 +114,9 @@ export function initialize(domElem) {
 
   _scene = new Scene();
 
-  _camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+  _camera = new PerspectiveCamera(50, width / height, 0.1, 1000);
 
-  _renderer = new THREE.WebGLRenderer({ antialias: true });
+  _renderer = new WebGLRenderer({ antialias: true });
   _renderer.setSize(width, height);
 
   // Establece el color de fondo del render
@@ -119,7 +124,7 @@ export function initialize(domElem) {
 
   _renderer.sortObjects = false;
 
-  _light = new THREE.PointLight(0xffffff, 1);
+  _light = new PointLight(0xffffff, 1);
   _light.position.set(1, 1, 1);
 
   _scene.add(_camera);
@@ -147,7 +152,7 @@ export function initialize(domElem) {
 
   _axes.addToScene(_scene);
 
-  _group = new THREE.Group();
+  _group = new Group();
 
   _scene.add(_group);
 
@@ -261,6 +266,9 @@ export function clearSceneObjects(stopAnimation = true) {
   }
 
   // Se borran las aristas de la escena y se borra el JSON de las figuras de memoria
+  if (_group.children.length > 0) {
+    _group.remove(..._group.children);
+  }
   _group.clear();
   _props.data = [];
 
@@ -318,7 +326,7 @@ export function showEdges(visible: boolean) {
   configuration.edgesVisibility = visible;
 
   // Actualiza la visibilidad de las figuras en el módulo de renders
-  Figures.updateEdgesVisibility(visible);
+  updateEdgesVisibility(visible);
 
   // Dibuja las aristas de las figuras actualmente rederizadas
   if (visible) {
@@ -379,7 +387,7 @@ export function showVertices(visible: boolean) {
   configuration.vertexVisibility = visible;
 
   // Actualiza la visibilidad de los vértices en el módulo de renders
-  Figures.updateVertexVisibility(visible);
+  updateVertexVisibility(visible);
 
   // Dibuja los vértices de las figuras actualmente rederizadas
   if (visible) {
@@ -436,7 +444,7 @@ export function showMetaData(visible: boolean) {
   configuration.metaDataVisibility = visible;
 
   // Actualiza la visibilidad de la meta información en el módulo de renders
-  Figures.updateMetaDataVisibility(visible);
+  updateMetaDataVisibility(visible);
 
   // Dibuja la meta información de las figuras actualmente renderizadas
   if (visible) {
@@ -530,7 +538,7 @@ export function changeOptions(options: Configuration) {
     }
   }
 
-  Figures.updateQuality(configuration.quality);
+  updateQuality(configuration.quality);
 }
 
 /**
@@ -749,22 +757,22 @@ function onMouseWheel(event) {
 }
 
 // THREE extensions
-THREE.Line.prototype.dispose = function () {
+Line.prototype.dispose = function () {
   this.geometry.dispose();
 };
 
-THREE.Mesh.prototype.dispose = function () {
+Mesh.prototype.dispose = function () {
   this.geometry.dispose();
 };
 
-THREE.Group.prototype.dispose = function () {
+Group.prototype.dispose = function () {
   this.children.forEach(function (child) {
     child.geometry.dispose();
   });
 };
 
-THREE.Group.prototype.clone = function () {
-  const clone = new THREE.Group();
+Group.prototype.clone = function () {
+  const clone = new Group();
 
   this.children.forEach(function (child) {
     clone.add(child.clone());
@@ -773,7 +781,7 @@ THREE.Group.prototype.clone = function () {
   return clone;
 };
 
-THREE.Group.prototype.removeAll = function (_dispose = false) {
+Group.prototype.removeAll = function (_dispose = false) {
   let child;
 
   while (this.children.length) {

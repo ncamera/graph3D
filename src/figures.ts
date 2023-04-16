@@ -1,7 +1,25 @@
-import * as THREE from "three";
 // import { Face3 } from "../node_modules/three/examples/jsm/deprecated/Geometry";
 // import { ParametricGeometry } from "../node_modules/three/examples/jsm/geometries/ParametricGeometry";
-import { BufferGeometry, Group, Mesh } from "three";
+import {
+  BoxGeometry,
+  BufferGeometry,
+  CircleGeometry,
+  Color,
+  CylinderGeometry,
+  DodecahedronGeometry,
+  EdgesGeometry,
+  Group,
+  IcosahedronGeometry,
+  Line,
+  LineBasicMaterial,
+  LineSegments,
+  Mesh,
+  OctahedronGeometry,
+  SphereGeometry,
+  TetrahedronGeometry,
+  TorusGeometry,
+  Vector3
+} from "three";
 
 // Constants
 import {
@@ -205,43 +223,24 @@ export const figureGeometryDictionary: {
     figure: Figure3D
   ) => BufferGeometry;
 } = {
-  cube: (figure: Cube3D) => new THREE.BoxGeometry(figure.w, figure.h, figure.l),
+  cube: (figure: Cube3D) => new BoxGeometry(figure.w, figure.h, figure.l),
 
   cylinder: (figure: Cylinder3D) =>
-    new THREE.CylinderGeometry(
-      figure.r0,
-      figure.r1,
-      figure.h,
-      configuration.quality
-    ),
+    new CylinderGeometry(figure.r0, figure.r1, figure.h, configuration.quality),
 
-  dodecahedron: (figure: Polyhedron3D) =>
-    new THREE.DodecahedronGeometry(figure.r, 0),
+  dodecahedron: (figure: Polyhedron3D) => new DodecahedronGeometry(figure.r, 0),
 
-  icosahedron: (figure: Polyhedron3D) =>
-    new THREE.IcosahedronGeometry(figure.r, 0),
+  icosahedron: (figure: Polyhedron3D) => new IcosahedronGeometry(figure.r, 0),
 
-  octahedron: (figure: Polyhedron3D) =>
-    new THREE.OctahedronGeometry(figure.r, 0),
+  octahedron: (figure: Polyhedron3D) => new OctahedronGeometry(figure.r, 0),
 
   ring: (figure: Ring3D) =>
-    new THREE.TorusGeometry(
-      figure.r,
-      figure.w,
-      figure.h,
-      configuration.quality,
-      6.3
-    ),
+    new TorusGeometry(figure.r, figure.w, figure.h, configuration.quality, 6.3),
 
   sphere: (figure: Sphere3D) =>
-    new THREE.SphereGeometry(
-      figure.r,
-      configuration.quality,
-      configuration.quality
-    ),
+    new SphereGeometry(figure.r, configuration.quality, configuration.quality),
 
-  tetrahedron: (figure: Polyhedron3D) =>
-    new THREE.TetrahedronGeometry(figure.r, 0)
+  tetrahedron: (figure: Polyhedron3D) => new TetrahedronGeometry(figure.r, 0)
 };
 
 /**
@@ -482,10 +481,10 @@ const createFigure = (
  * Dado un radio y la posición del eje z, crea una circunferencia (no un disco)
  */
 const createCircle = (radius: number, centerZ: number) => {
-  const circleGeometry = new THREE.CircleGeometry(radius, 128);
+  const circleGeometry = new CircleGeometry(radius, 128);
 
-  const edgesGeometry = new THREE.EdgesGeometry(circleGeometry);
-  const circleMesh = new THREE.LineSegments(edgesGeometry, LINE_BASIC_MATERIAL);
+  const edgesGeometry = new EdgesGeometry(circleGeometry);
+  const circleMesh = new LineSegments(edgesGeometry, LINE_BASIC_MATERIAL);
 
   // Posicionar correctamente al circulo
   circleMesh.position.set(0, centerZ, 0);
@@ -535,22 +534,22 @@ const OctahedronFigure = (figure: Polyhedron3D): Figure3DRender =>
   createFigure(figureGeometryDictionary["octahedron"](figure), figure);
 
 function LineFigure(figure: Line3D): Figure3DRender {
-  const pointsLine: THREE.Vector3[] = [];
+  const pointsLine: Vector3[] = [];
   pointsLine.push(
-    new THREE.Vector3(figure.pts[0][1], figure.pts[0][2], figure.pts[0][0])
+    new Vector3(figure.pts[0][1], figure.pts[0][2], figure.pts[0][0])
   );
   pointsLine.push(
-    new THREE.Vector3(figure.pts[1][1], figure.pts[1][2], figure.pts[1][0])
+    new Vector3(figure.pts[1][1], figure.pts[1][2], figure.pts[1][0])
   );
 
-  const geometry = new THREE.BufferGeometry().setFromPoints(pointsLine);
+  const geometry = new BufferGeometry().setFromPoints(pointsLine);
 
   const color = figure.color === "white" ? "gray" : figure.color;
 
-  const figureMesh = new THREE.Line(
+  const figureMesh = new Line(
     geometry,
-    new THREE.LineBasicMaterial({
-      color: new THREE.Color(color),
+    new LineBasicMaterial({
+      color: new Color(color),
       linewidth: 1
     })
   );
