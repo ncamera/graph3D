@@ -1,9 +1,7 @@
-import { BufferAttribute, BufferGeometry, Color, DoubleSide, Group, Line, LineBasicMaterial, Mesh, MeshLambertMaterial, Vector3 } from "three";
+import { BufferAttribute, BufferGeometry, Color, DoubleSide, Group, Line, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import earcut from "earcut";
 import { createDashedLine, createEdgesForAGeometry, createVertex } from "./utils";
-// - - - - - - - - - - - - - Constantes - - - - - - - - - - - - -
-const LINE_BASIC_MATERIAL = new LineBasicMaterial({ color: 0x000000 });
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+import { LINE_BASIC_MATERIAL } from "./figures-constants";
 /**
  * Dado un poligono formado como un conjunto de duplas 2D (donde la dupla se
  * modela como una lista de dos elementos), se aplana el poligono para que sea
@@ -72,10 +70,7 @@ const createPolygonGeometry = (triangles) => {
     figureGeometry.computeVertexNormals();
     return figureGeometry;
 };
-const createPolygon = (triangles, material) => {
-    const figureGeometry = createPolygonGeometry(triangles);
-    return new Mesh(figureGeometry, material);
-};
+const createPolygon = (triangles, material) => new Mesh(createPolygonGeometry(triangles), material);
 const createEdgesForEachSideFace = (topPolygon, bottomPolygon, topPolygonHeight, bottomPolygonHeight, edgesGroup) => {
     const iterationLimit = topPolygon.length / 2 - 1;
     // Se itera a través de los vértices del poligono y se crea cada lateral y arista

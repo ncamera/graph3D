@@ -135,9 +135,7 @@ export const DODECAHEDRON_VERTICES = [
     0,
     r
 ];
-export const LINE_BASIC_MATERIAL = new LineBasicMaterial({
-    color: 0x000000
-});
+export const LINE_BASIC_MATERIAL = new LineBasicMaterial({ color: 0x000000 });
 export const LINE_DASHED_MATERIAL = new LineDashedMaterial({
     color: 0x000000,
     linewidth: 1,

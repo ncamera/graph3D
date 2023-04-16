@@ -1,12 +1,11 @@
-import * as Figures from "./figures";
-const THREE = require("three");
 import Axes from "./axes";
 import MemoryCache from "./memory_cache";
 import OrbitControls from "./orbit_controls";
-import { Scene } from "three";
+import { Group, WebGLRenderer, PointLight, PerspectiveCamera, Scene, Line, Mesh } from "three";
 import { degreesToRadian } from "./utils";
 import { createFigure3DEdges, createFigure3D, createFigure3DMetaData, getFigureKey, createFigure3DVertex } from "./graph3d-utils";
 import { REMOVE_EDGES_PREDICATE, REMOVE_METADATA_PREDICATE, REMOVE_VERTEX_PREDICATE } from "./figures-constants";
+import { updateEdgesVisibility, updateMetaDataVisibility, updateQuality, updateVertexVisibility } from "./figures";
 // import { MathFunctionFigure, MathParametricFigure } from "./figures";
 const DEFAULT_AXES_WIDTH = { min: -10, max: 10 };
 const ZOOM_SPEED = 0.025;
@@ -68,13 +67,13 @@ export function initialize(domElem) {
     const width = domElem.getBoundingClientRect().width || 50;
     const height = domElem.getBoundingClientRect().height || 50;
     _scene = new Scene();
-    _camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-    _renderer = new THREE.WebGLRenderer({ antialias: true });
+    _camera = new PerspectiveCamera(50, width / height, 0.1, 1000);
+    _renderer = new WebGLRenderer({ antialias: true });
     _renderer.setSize(width, height);
     // Establece el color de fondo del render
     _renderer.setClearColor(0xffffff, 1);
     _renderer.sortObjects = false;
-    _light = new THREE.PointLight(0xffffff, 1);
+    _light = new PointLight(0xffffff, 1);
     _light.position.set(1, 1, 1);
     _scene.add(_camera);
     _camera.add(_light);
@@ -95,7 +94,7 @@ export function initialize(domElem) {
         zMax: DEFAULT_AXES_WIDTH.max
     });
     _axes.addToScene(_scene);
-    _group = new THREE.Group();
+    _group = new Group();
     _scene.add(_group);
     domElem.appendChild(_renderer.domElement);
     _renderer.render(_scene, _camera);
@@ -179,6 +178,9 @@ export function clearSceneObjects(stopAnimation = true) {
         _props.dataAnimation = [];
     }
     // Se borran las aristas de la escena y se borra el JSON de las figuras de memoria
+    if (_group.children.length > 0) {
+        _group.remove(..._group.children);
+    }
     _group.clear();
     _props.data = [];
     _renderer.render(_scene, _camera);
@@ -224,7 +226,7 @@ export function showEdges(visible) {
     }
     configuration.edgesVisibility = visible;
     // Actualiza la visibilidad de las figuras en el módulo de renders
-    Figures.updateEdgesVisibility(visible);
+    updateEdgesVisibility(visible);
     // Dibuja las aristas de las figuras actualmente rederizadas
     if (visible) {
         showEdgesForEachRenderedFigure();
@@ -276,7 +278,7 @@ export function showVertices(visible) {
     }
     configuration.vertexVisibility = visible;
     // Actualiza la visibilidad de los vértices en el módulo de renders
-    Figures.updateVertexVisibility(visible);
+    updateVertexVisibility(visible);
     // Dibuja los vértices de las figuras actualmente rederizadas
     if (visible) {
         showVertexForEachRenderedFigure();
@@ -322,7 +324,7 @@ export function showMetaData(visible) {
     }
     configuration.metaDataVisibility = visible;
     // Actualiza la visibilidad de la meta información en el módulo de renders
-    Figures.updateMetaDataVisibility(visible);
+    updateMetaDataVisibility(visible);
     // Dibuja la meta información de las figuras actualmente renderizadas
     if (visible) {
         showMetaDataForEachRenderedFigure();
@@ -398,7 +400,7 @@ export function changeOptions(options) {
             configuration[property] = options[property];
         }
     }
-    Figures.updateQuality(configuration.quality);
+    updateQuality(configuration.quality);
 }
 /**
  * Reinicia el zoom, centrando la cámara en la posición por defecto.
@@ -563,25 +565,25 @@ function onMouseWheel(event) {
     _renderer.render(_scene, _camera);
 }
 // THREE extensions
-THREE.Line.prototype.dispose = function () {
+Line.prototype.dispose = function () {
     this.geometry.dispose();
 };
-THREE.Mesh.prototype.dispose = function () {
+Mesh.prototype.dispose = function () {
     this.geometry.dispose();
 };
-THREE.Group.prototype.dispose = function () {
+Group.prototype.dispose = function () {
     this.children.forEach(function (child) {
         child.geometry.dispose();
     });
 };
-THREE.Group.prototype.clone = function () {
-    const clone = new THREE.Group();
+Group.prototype.clone = function () {
+    const clone = new Group();
     this.children.forEach(function (child) {
         clone.add(child.clone());
     });
     return clone;
 };
-THREE.Group.prototype.removeAll = function (_dispose = false) {
+Group.prototype.removeAll = function (_dispose = false) {
     let child;
     while (this.children.length) {
         child = this.children[0];

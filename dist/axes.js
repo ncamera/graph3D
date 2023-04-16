@@ -1,14 +1,14 @@
-import * as THREE from "three";
+import { BufferGeometry, Group, Line, LineBasicMaterial, Sprite, SpriteMaterial, Texture, Vector3 } from "three";
 // - - - - - - - - - - - - - Constantes - - - - - - - - - - - - -
 const AXE_LABEL_PADDING = 0.5;
 const AXE_TICK_PADDING = 0.3;
-const LINE_BASIC_MATERIAL_ZERO = new THREE.LineBasicMaterial({
+const LINE_BASIC_MATERIAL_ZERO = new LineBasicMaterial({
     color: "black",
     linewidth: 0.1,
     transparent: true,
     opacity: 0.6
 });
-const LINE_BASIC_MATERIAL_NOT_ZERO = new THREE.LineBasicMaterial({
+const LINE_BASIC_MATERIAL_NOT_ZERO = new LineBasicMaterial({
     color: "black",
     linewidth: 0.1,
     transparent: true,
@@ -16,7 +16,7 @@ const LINE_BASIC_MATERIAL_NOT_ZERO = new THREE.LineBasicMaterial({
 });
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 const Axes = function () {
-    const group = new THREE.Group();
+    const group = new Group();
     group.name = "axes";
     this.group = group;
 };
@@ -63,10 +63,10 @@ const materialLine = (isZero) => {
 };
 const drawLine = function (x0, x1, y0, y1, z0, z1) {
     const pointsLine = [];
-    pointsLine.push(new THREE.Vector3(x0, y0, z0));
-    pointsLine.push(new THREE.Vector3(x1, y1, z1));
-    const geometry = new THREE.BufferGeometry().setFromPoints(pointsLine);
-    return new THREE.Line(geometry, materialLine(!x0 || !y0 || !z0));
+    pointsLine.push(new Vector3(x0, y0, z0));
+    pointsLine.push(new Vector3(x1, y1, z1));
+    const geometry = new BufferGeometry().setFromPoints(pointsLine);
+    return new Line(geometry, materialLine(!x0 || !y0 || !z0));
 };
 const drawTickLabel = function (x0, y0, z0, text) {
     // create a canvas element
@@ -89,12 +89,12 @@ const drawTickLabel = function (x0, y0, z0, text) {
     context.fillStyle = "#000";
     context.fillText(text, canvas.width / 2, canvas.height / 2);
     // Create text from canvas
-    const texture = new THREE.Texture(canvas);
+    const texture = new Texture(canvas);
     texture.needsUpdate = true;
     // Create sprite material from texture
-    const spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+    const spriteMaterial = new SpriteMaterial({ map: texture });
     // Create sprite
-    const sprite = new THREE.Sprite(spriteMaterial);
+    const sprite = new Sprite(spriteMaterial);
     // Set scale and position
     const sprite_scale = 0.24 * (1 / canvas_text_res);
     sprite.scale.set(canvas.width * sprite_scale, canvas.height * sprite_scale, 1);

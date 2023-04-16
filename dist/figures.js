@@ -1,7 +1,6 @@
-import * as THREE from "three";
 // import { Face3 } from "../node_modules/three/examples/jsm/deprecated/Geometry";
 // import { ParametricGeometry } from "../node_modules/three/examples/jsm/geometries/ParametricGeometry";
-import { Group, Mesh } from "three";
+import { BoxGeometry, BufferGeometry, CircleGeometry, Color, CylinderGeometry, DodecahedronGeometry, EdgesGeometry, Group, IcosahedronGeometry, Line, LineBasicMaterial, LineSegments, Mesh, OctahedronGeometry, SphereGeometry, TetrahedronGeometry, TorusGeometry, Vector3 } from "three";
 // Constants
 import { CUBE_VERTICES, DODECAHEDRON_VERTICES, ICOSACAHEDRON_VERTICES, LINE_BASIC_MATERIAL, 
 // MATH_QUALITY,
@@ -86,14 +85,14 @@ const joinFigIn3DFigureEdgesDictionary = {
 //   }
 // );
 export const figureGeometryDictionary = {
-    cube: (figure) => new THREE.BoxGeometry(figure.w, figure.h, figure.l),
-    cylinder: (figure) => new THREE.CylinderGeometry(figure.r0, figure.r1, figure.h, configuration.quality),
-    dodecahedron: (figure) => new THREE.DodecahedronGeometry(figure.r, 0),
-    icosahedron: (figure) => new THREE.IcosahedronGeometry(figure.r, 0),
-    octahedron: (figure) => new THREE.OctahedronGeometry(figure.r, 0),
-    ring: (figure) => new THREE.TorusGeometry(figure.r, figure.w, figure.h, configuration.quality, 6.3),
-    sphere: (figure) => new THREE.SphereGeometry(figure.r, configuration.quality, configuration.quality),
-    tetrahedron: (figure) => new THREE.TetrahedronGeometry(figure.r, 0)
+    cube: (figure) => new BoxGeometry(figure.w, figure.h, figure.l),
+    cylinder: (figure) => new CylinderGeometry(figure.r0, figure.r1, figure.h, configuration.quality),
+    dodecahedron: (figure) => new DodecahedronGeometry(figure.r, 0),
+    icosahedron: (figure) => new IcosahedronGeometry(figure.r, 0),
+    octahedron: (figure) => new OctahedronGeometry(figure.r, 0),
+    ring: (figure) => new TorusGeometry(figure.r, figure.w, figure.h, configuration.quality, 6.3),
+    sphere: (figure) => new SphereGeometry(figure.r, configuration.quality, configuration.quality),
+    tetrahedron: (figure) => new TetrahedronGeometry(figure.r, 0)
 };
 /**
  * Diccionario que, dada una figura, permite obtener el objeto para renderizar
@@ -250,9 +249,9 @@ const createFigure = (figureGeometry, figureJSON) => {
  * Dado un radio y la posición del eje z, crea una circunferencia (no un disco)
  */
 const createCircle = (radius, centerZ) => {
-    const circleGeometry = new THREE.CircleGeometry(radius, 128);
-    const edgesGeometry = new THREE.EdgesGeometry(circleGeometry);
-    const circleMesh = new THREE.LineSegments(edgesGeometry, LINE_BASIC_MATERIAL);
+    const circleGeometry = new CircleGeometry(radius, 128);
+    const edgesGeometry = new EdgesGeometry(circleGeometry);
+    const circleMesh = new LineSegments(edgesGeometry, LINE_BASIC_MATERIAL);
     // Posicionar correctamente al circulo
     circleMesh.position.set(0, centerZ, 0);
     circleMesh.rotation.set(degreesToRadian(-90), 0, 0);
@@ -282,12 +281,12 @@ const TetrahedronFigure = (figure) => createFigure(figureGeometryDictionary["tet
 const OctahedronFigure = (figure) => createFigure(figureGeometryDictionary["octahedron"](figure), figure);
 function LineFigure(figure) {
     const pointsLine = [];
-    pointsLine.push(new THREE.Vector3(figure.pts[0][1], figure.pts[0][2], figure.pts[0][0]));
-    pointsLine.push(new THREE.Vector3(figure.pts[1][1], figure.pts[1][2], figure.pts[1][0]));
-    const geometry = new THREE.BufferGeometry().setFromPoints(pointsLine);
+    pointsLine.push(new Vector3(figure.pts[0][1], figure.pts[0][2], figure.pts[0][0]));
+    pointsLine.push(new Vector3(figure.pts[1][1], figure.pts[1][2], figure.pts[1][0]));
+    const geometry = new BufferGeometry().setFromPoints(pointsLine);
     const color = figure.color === "white" ? "gray" : figure.color;
-    const figureMesh = new THREE.Line(geometry, new THREE.LineBasicMaterial({
-        color: new THREE.Color(color),
+    const figureMesh = new Line(geometry, new LineBasicMaterial({
+        color: new Color(color),
         linewidth: 1
     }));
     return {
