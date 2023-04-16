@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "earcut": "^2.2.4",
-    "gif.js": "^0.2.0",
     "three": "^0.140.0"
   }
 }

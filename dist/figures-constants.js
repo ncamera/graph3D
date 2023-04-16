@@ -135,9 +135,7 @@ export const DODECAHEDRON_VERTICES = [
     0,
     r
 ];
-export const LINE_BASIC_MATERIAL = new LineBasicMaterial({
-    color: 0x000000
-});
+export const LINE_BASIC_MATERIAL = new LineBasicMaterial({ color: 0x000000 });
 export const LINE_DASHED_MATERIAL = new LineDashedMaterial({
     color: 0x000000,
     linewidth: 1,
@@ -158,21 +156,12 @@ export const VERTEX_CONFIGURATION = new MeshLambertMaterial({
 // sucede cuando se usa joinFigIn3D. Para ver si el Group correspondiente es
 // el de las aristas, se chequea el material del primer elemento.
 // De ser ese el caso, se borra todo el Group (ya que solo tiene aristas)
-export const REMOVE_EDGES_PREDICATE = object3D => {
-    var _a, _b;
-    return object3D.type === "LineSegments" ||
-        (object3D.type === "Group" &&
-            ((_b = (_a = object3D.children[0]) === null || _a === void 0 ? void 0 : _a.material) === null || _b === void 0 ? void 0 : _b.type) === "LineBasicMaterial");
-};
-export const REMOVE_VERTEX_PREDICATE = object3D => {
-    var _a, _b, _c, _d, _e;
-    return object3D.type === "Group" &&
-        (((_b = (_a = object3D.children[0]) === null || _a === void 0 ? void 0 : _a.geometry) === null || _b === void 0 ? void 0 : _b.type) === "SphereGeometry" ||
-            ((_e = (_d = (_c = object3D.children[0]) === null || _c === void 0 ? void 0 : _c.children[0]) === null || _d === void 0 ? void 0 : _d.geometry) === null || _e === void 0 ? void 0 : _e.type) === "SphereGeometry");
-};
-export const REMOVE_METADATA_PREDICATE = object3D => {
-    var _a, _b, _c;
-    return ((_a = object3D.material) === null || _a === void 0 ? void 0 : _a.type) === "LineDashedMaterial" ||
-        (object3D.type === "Group" &&
-            ((_c = (_b = object3D.children[0]) === null || _b === void 0 ? void 0 : _b.material) === null || _c === void 0 ? void 0 : _c.type) === "LineDashedMaterial");
-};
+export const REMOVE_EDGES_PREDICATE = object3D => object3D.type === "LineSegments" ||
+    (object3D.type === "Group" &&
+        object3D.children[0]?.material?.type === "LineBasicMaterial");
+export const REMOVE_VERTEX_PREDICATE = object3D => object3D.type === "Group" &&
+    (object3D.children[0]?.geometry?.type === "SphereGeometry" ||
+        object3D.children[0]?.children[0]?.geometry?.type === "SphereGeometry");
+export const REMOVE_METADATA_PREDICATE = object3D => object3D.material?.type === "LineDashedMaterial" ||
+    (object3D.type === "Group" &&
+        object3D.children[0]?.material?.type === "LineDashedMaterial");
