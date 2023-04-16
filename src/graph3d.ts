@@ -20,7 +20,8 @@ import {
   PerspectiveCamera,
   Scene,
   Line,
-  Mesh
+  Mesh,
+  Vector2
 } from "three";
 import { degreesToRadian } from "./utils";
 import {
@@ -314,8 +315,6 @@ export function showAxes(visible: boolean) {
 /**
  * Muestra o oculta las aristras de las figuras actualmente renderizadas.
  * @param visible Determina si los aristas serán visibles o ocultadas.
- *
- * @todo TODO: Completar la implementación
  */
 export function showEdges(visible: boolean) {
   // Si no se ha inicializado, no se hace nada
@@ -375,8 +374,6 @@ function showEdgesForEachRenderedFigure() {
 /**
  * Muestra o oculta los vertices de las figuras actualmente renderizadas.
  * @param visible Determina si los vertices serán visibles o ocultados.
- *
- * @todo TODO: Completar la implementación
  */
 export function showVertices(visible: boolean) {
   // Si no se ha inicializado, no se hace nada
@@ -432,8 +429,6 @@ function showVertexForEachRenderedFigure() {
 /**
  * Muestra o oculta la meta informacion de las figuras actualmente renderizadas.
  * @param visible Determina si la meta informacion de las figuras será visible o ocultada.
- *
- * @todo TODO: Completar la implementación
  */
 export function showMetaData(visible: boolean) {
   // Si no se ha inicializado, no se hace nada
@@ -487,18 +482,26 @@ function showMetaDataForEachRenderedFigure() {
   });
 }
 
-export function changeSize(size) {
-  const newAspect = size.width / size.height;
+/**
+ * Actualiza el tamaño del render, si el tamaño del componente que contiene al
+ * render es distinto del tamaño del render.
+ * @param componentSize Tamaño del componente que contiene al render
+ */
+export function changeSize(componentSize: { width: number; height: number }) {
+  const newAspect = componentSize.width / componentSize.height;
+
+  const rendererVector: Vector2 = new Vector2();
+  _renderer.getSize(rendererVector);
 
   if (
     _camera.aspect !== newAspect ||
-    _renderer.getSize().width !== size.width ||
-    _renderer.getSize().height !== size.height
+    rendererVector.width !== componentSize.width ||
+    rendererVector.height !== componentSize.height
   ) {
     _camera.aspect = newAspect;
     _camera.updateProjectionMatrix();
 
-    _renderer.setSize(size.width, size.height);
+    _renderer.setSize(componentSize.width, componentSize.height);
     _renderer.render(_scene, _camera);
   }
 }

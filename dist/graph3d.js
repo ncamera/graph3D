@@ -1,7 +1,7 @@
 import Axes from "./axes";
 import MemoryCache from "./memory_cache";
 import OrbitControls from "./orbit_controls";
-import { Group, WebGLRenderer, PointLight, PerspectiveCamera, Scene, Line, Mesh } from "three";
+import { Group, WebGLRenderer, PointLight, PerspectiveCamera, Scene, Line, Mesh, Vector2 } from "three";
 import { degreesToRadian } from "./utils";
 import { createFigure3DEdges, createFigure3D, createFigure3DMetaData, getFigureKey, createFigure3DVertex } from "./graph3d-utils";
 import { REMOVE_EDGES_PREDICATE, REMOVE_METADATA_PREDICATE, REMOVE_VERTEX_PREDICATE } from "./figures-constants";
@@ -358,14 +358,21 @@ function showMetaDataForEachRenderedFigure() {
         }
     });
 }
-export function changeSize(size) {
-    const newAspect = size.width / size.height;
+/**
+ * Actualiza el tamaño del render, si el tamaño del componente que contiene al
+ * render es distinto del tamaño del render.
+ * @param componentSize Tamaño del componente que contiene al renderss
+ */
+export function changeSize(componentSize) {
+    const newAspect = componentSize.width / componentSize.height;
+    const rendererVector = new Vector2();
+    _renderer.getSize(rendererVector);
     if (_camera.aspect !== newAspect ||
-        _renderer.getSize().width !== size.width ||
-        _renderer.getSize().height !== size.height) {
+        rendererVector.width !== componentSize.width ||
+        rendererVector.height !== componentSize.height) {
         _camera.aspect = newAspect;
         _camera.updateProjectionMatrix();
-        _renderer.setSize(size.width, size.height);
+        _renderer.setSize(componentSize.width, componentSize.height);
         _renderer.render(_scene, _camera);
     }
 }
