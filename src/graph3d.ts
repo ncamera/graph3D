@@ -781,18 +781,6 @@ Group.prototype.clone = function () {
   return clone;
 };
 
-Group.prototype.removeAll = function (_dispose = false) {
-  let child;
-
-  while (this.children.length) {
-    child = this.children[0];
-    this.remove(child);
-    if (_dispose) {
-      child.dispose();
-    }
-  }
-};
-
 const configureFigureInformationAndAddToTheScene = (
   figure: Figure3D,
   mesh: FigureEdges | FigureMetaData | FigureVertex
